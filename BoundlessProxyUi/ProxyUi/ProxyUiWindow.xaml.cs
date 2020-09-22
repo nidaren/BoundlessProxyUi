@@ -195,15 +195,10 @@ namespace BoundlessProxyUi.ProxyUi
             m_dontMainSelect = false;
         }
 
-        private void Window_Closed(object sender, EventArgs e)
+        private void Window_Closing(object sender, CancelEventArgs e)
         {
-            Instance = null;
-
-            try
-            {
-                ProxyManagerWindow.Instance?.Close();
-            }
-            catch { }
+            this.Hide();
+            e.Cancel = true;
         }
 
         private void PreviewNumberInput(object sender, System.Windows.Input.TextCompositionEventArgs e)

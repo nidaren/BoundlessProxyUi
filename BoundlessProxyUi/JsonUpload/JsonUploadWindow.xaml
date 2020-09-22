@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BoundlessProxyUi.JsonUpload"
         mc:Ignorable="d"
-        Title="JsonUploadWindow" Height="133" Width="477" ResizeMode="CanMinimize" Closed="Window_Closed">
+        Title="JsonUploadWindow" Height="133" Width="477" ResizeMode="CanMinimize" Closing="Window_Closing">
     <Grid VerticalAlignment="Center" HorizontalAlignment="Center">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="auto" />

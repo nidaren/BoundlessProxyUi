@@ -18,6 +18,8 @@
         </StackPanel>
 
         <TextBlock HorizontalAlignment="Center" Margin="5" FontSize="18" Grid.Row="1" VerticalAlignment="Center" >Running!</TextBlock>
+        <Button x:Name="settingsButton" Content="Open Settings" HorizontalAlignment="Left" Margin="115,288,0,0" Grid.Row="1" VerticalAlignment="Top" Width="150" Height="40" Click="settingsButton_Click"/>
+        <Button x:Name="proxyUIButton" Content="Open ProxyUI (Advanced)" HorizontalAlignment="Left" Margin="115,348,0,0" Grid.Row="1" VerticalAlignment="Top" Width="150" Height="40" Click="proxyUIButton_Click"/>
     </Grid>
 </UserControl>
 

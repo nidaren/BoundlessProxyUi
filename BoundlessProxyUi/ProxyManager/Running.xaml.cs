@@ -37,12 +37,37 @@ namespace BoundlessProxyUi.ProxyManager
         {
             if (ProxyUiWindow.Instance == null)
             {
-                new ProxyUiWindow().Show();
+                ProxyUiWindow.Instance = new ProxyUiWindow();
+                ProxyUiWindow.Instance.Hide();
             }
 
             if (JsonUploadWindow.Instance == null)
             {
-                new JsonUploadWindow().Show();
+                JsonUploadWindow.Instance = new JsonUploadWindow();
+                JsonUploadWindow.Instance.Hide();
+            }
+        }
+
+        private void settingsButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (!JsonUploadWindow.Instance.IsVisible) { 
+                JsonUploadWindow.Instance.Show();
+            }
+            else
+            {
+                JsonUploadWindow.Instance.Focus();
+            }
+        }
+
+        private void proxyUIButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (!ProxyUiWindow.Instance.IsVisible)
+            {
+                ProxyUiWindow.Instance.Show();
+            }
+            else
+            {
+                ProxyUiWindow.Instance.Focus();
             }
         }
     }

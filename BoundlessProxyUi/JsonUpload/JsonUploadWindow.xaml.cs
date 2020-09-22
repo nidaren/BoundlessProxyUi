@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -38,15 +39,10 @@ namespace BoundlessProxyUi.JsonUpload
 
         JsonUploadWindowViewModel MyDataContext;
 
-        private void Window_Closed(object sender, EventArgs e)
+        private void Window_Closing(object sender, CancelEventArgs e)
         {
-            Instance = null;
-
-            try
-            {
-                ProxyManagerWindow.Instance?.Close();
-            }
-            catch { }
+            this.Hide();
+            e.Cancel = true;
         }
 
         public void OnFrameIn<T>(int planetId, string planetDisplayName, T frame_object)
@@ -63,7 +59,7 @@ namespace BoundlessProxyUi.JsonUpload
                     {
                         payload = JObject.Parse(Encoding.UTF8.GetString(curMessage.Buffer));
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         return;
                     }
