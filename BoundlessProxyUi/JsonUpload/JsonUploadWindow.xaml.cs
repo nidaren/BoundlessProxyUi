@@ -77,7 +77,8 @@ namespace BoundlessProxyUi.JsonUpload
                         }
                         catch (Exception ex)
                         {
-                            MessageBox.Show($"Failed to write {fileName}.json:\r\n{ex.Message}", "Error writing json", MessageBoxButton.OK, MessageBoxImage.Error);
+                            ParentDataContext.TextStatus = $"Failed to write {fileName}.json:\r\n{ex.Message}";
+                            MessageBox.Show(ParentDataContext.TextStatus, "Error writing json", MessageBoxButton.OK, MessageBoxImage.Error);
                             return;
                         }
                     }

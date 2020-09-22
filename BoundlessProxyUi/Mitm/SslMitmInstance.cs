@@ -12,13 +12,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using BoundlessProxyUi.WsData;
-using ComponentAce.Compression.Libs.zlib;
 using BoundlessProxyUi.ProxyUi;
 using BoundlessProxyUi.Util;
 using BoundlessProxyUi.ProxyManager.Components;
-using System.Windows.Media.Animation;
-using System.Runtime.Remoting.Messaging;
-using System.Windows.Ink;
 using BoundlessProxyUi.JsonUpload;
 
 namespace BoundlessProxyUi.Mitm
@@ -95,7 +91,7 @@ namespace BoundlessProxyUi.Mitm
 
         public static async Task InitPlanets(Dictionary<string, string> hostLookup)
         {
-            string blah = $"https://{Constants.DiscoveryServer}:8902/list-gameservers";
+            string blah = $"{Config.GetSetting("ApiBaseUrl", "https://api.boundlexx.app/api")}/v1/worlds?limit=10000";
 
             HttpClient client = new HttpClient();
             var result = await client.GetAsync(blah);
@@ -104,17 +100,17 @@ namespace BoundlessProxyUi.Mitm
                 throw new Exception("Error getting planets from server");
             }
 
-            var serverList = JArray.Parse(await result.Content.ReadAsStringAsync());
+            var serverList = JObject.Parse(await result.Content.ReadAsStringAsync());
 
             int curPort = 1000;
 
-            foreach (var something in serverList)
+            foreach (var something in serverList["results"])
             {
                 string planetId = something["name"].Value<string>();
-                string planetName = something["displayName"].Value<string>();
+                string planetName = something["display_name"].Value<string>();
                 var planetNum = something["id"].Value<int>();
 
-                string addr = something["addr"].Value<string>();
+                string addr = something["address"].Value<string>();
                 string ipAddr = hostLookup[addr];
 
                 planetLookup.Add(planetId, new KeyValuePair<string, int>(planetName, planetNum));
