@@ -49,6 +49,19 @@ namespace BoundlessProxyUi.JsonUpload
             }
         }
 
+        public string ApiBaseUrl
+        {
+            get
+            {
+                return Config.GetSetting(nameof(ApiBaseUrl), "https://api.boundlexx.app/api");
+            }
+            set
+            {
+                Config.SetSetting(nameof(ApiBaseUrl), value);
+                OnPropertyChanged(nameof(ApiBaseUrl));
+            }
+        }
+
         /// <summary>
         /// Occurs when a property value changes
         /// </summary>

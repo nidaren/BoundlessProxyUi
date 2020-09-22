@@ -29,6 +29,8 @@ namespace BoundlessProxyUi.ProxyManager
             dc = ((ManagerWindowViewModel)ProxyManagerWindow.Instance.DataContext);
 
             InitializeComponent();
+
+            dc.TextStatus = "Running...";
         }
 
         private ManagerWindowViewModel dc;
@@ -43,7 +45,7 @@ namespace BoundlessProxyUi.ProxyManager
 
             if (JsonUploadWindow.Instance == null)
             {
-                JsonUploadWindow.Instance = new JsonUploadWindow();
+                JsonUploadWindow.Instance = new JsonUploadWindow(dc);
                 JsonUploadWindow.Instance.Hide();
             }
         }

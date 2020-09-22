@@ -5,25 +5,31 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BoundlessProxyUi.JsonUpload"
         mc:Ignorable="d"
-        Title="JsonUploadWindow" Height="133" Width="477" ResizeMode="CanMinimize" Closing="Window_Closing">
-    <Grid VerticalAlignment="Center" HorizontalAlignment="Center">
+        Title="JsonUploadWindow" Height="158" Width="477" ResizeMode="CanMinimize" Closing="Window_Closing">
+    <Grid VerticalAlignment="Top" HorizontalAlignment="Center" Margin="14,7,13,0">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="auto" />
+            <ColumnDefinition Width="60" />
+            <ColumnDefinition Width="120"/>
+            <ColumnDefinition Width="54"/>
             <ColumnDefinition Width="auto" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
             <RowDefinition Height="auto" />
             <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
         </Grid.RowDefinitions>
 
-        <TextBlock Margin="5" Grid.Row="0" Grid.Column="0" TextAlignment="Right">Save planet JSON to disk:</TextBlock>
-        <CheckBox Name="chkFile" Margin="5" Grid.Row="0" Grid.Column="1" IsChecked="{Binding JsonSaveFile}" />
+        <TextBlock Margin="5" Grid.Row="0" Grid.Column="0" TextAlignment="Right" Grid.ColumnSpan="3">Save planet JSON to disk:</TextBlock>
+        <CheckBox Name="chkFile" Margin="5" Grid.Row="0" Grid.Column="3" IsChecked="{Binding JsonSaveFile}" />
 
-        <TextBlock Margin="5" Grid.Row="1" Grid.Column="0" TextAlignment="Right">Upload planet JSON to api.boundlexx.app:</TextBlock>
-        <CheckBox Name="chkApi" Margin="5" Grid.Row="1" Grid.Column="1" IsChecked="{Binding JsonSaveApi}" />
+        <TextBlock Margin="5" Grid.Row="1" Grid.Column="0" TextAlignment="Right" Grid.ColumnSpan="3" Text="Upload planet JSON to Boundlexx:"/>
+        <CheckBox Name="chkApi" Margin="5" Grid.Row="1" Grid.Column="3" IsChecked="{Binding JsonSaveApi}" />
 
-        <TextBlock Margin="5" Grid.Row="2" Grid.Column="0" TextAlignment="Right">api.boundlexx.app API key:</TextBlock>
-        <TextBox x:Name="txtApiKey" Margin="5" Grid.Row="2" Grid.Column="1" MinWidth="200" Text="{Binding JsonApiKey}" />
+        <TextBlock Margin="5" Grid.Row="2" Grid.Column="0" TextAlignment="Right" Grid.ColumnSpan="3" Text="Boundlexx API key:"/>
+        <TextBox x:Name="txtApiKey" Margin="5" Grid.Row="2" Grid.Column="3" MinWidth="200" Text="{Binding JsonApiKey}" />
+
+        <TextBlock Margin="5" Grid.Row="3" Grid.Column="0" TextAlignment="Right" Grid.ColumnSpan="3" Text="Boundlexx Base URL:"/>
+        <TextBox x:Name="txtBaseUrl" Margin="5" Grid.Row="3" Grid.Column="3" MinWidth="200" Text="{Binding ApiBaseUrl}" />
     </Grid>
 </Window>

@@ -28,15 +28,17 @@ namespace BoundlessProxyUi.JsonUpload
     {
         public static JsonUploadWindow Instance { get; set; }
 
-        public JsonUploadWindow()
+        public JsonUploadWindow(ManagerWindowViewModel dc)
         {
             Instance = this;
 
             InitializeComponent();
 
+            ParentDataContext = dc;
             DataContext = MyDataContext = new JsonUploadWindowViewModel();
         }
 
+        ManagerWindowViewModel ParentDataContext;
         JsonUploadWindowViewModel MyDataContext;
 
         private void Window_Closing(object sender, CancelEventArgs e)
@@ -86,7 +88,6 @@ namespace BoundlessProxyUi.JsonUpload
                         client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Token", MyDataContext.JsonApiKey);
 
                         payload["world_id"] = planetId;
-                        //payload["display_name"] = planetDisplayName;
 
                         string aikjbhgshdoi = payload.ToString();
 
@@ -94,19 +95,23 @@ namespace BoundlessProxyUi.JsonUpload
 
                         try
                         {
-                            response = client.PostAsync("https://api.boundlexx.app/api/ingest-ws-data/", new StringContent(payload.ToString(), Encoding.UTF8, "application/json")).Result;
+                            response = client.PostAsync($"{MyDataContext.ApiBaseUrl}/ingest-ws-data/", new StringContent(payload.ToString(), Encoding.UTF8, "application/json")).Result;
                         }
                         catch (Exception ex)
                         {
-                            MessageBox.Show($"Failed to upload {planetDisplayName} json: {ex.Message}", "Error uploading json", MessageBoxButton.OK, MessageBoxImage.Error);
+                            ParentDataContext.TextStatus = $"Failed to upload {planetDisplayName} json: {ex.Message}";
+                            MessageBox.Show(ParentDataContext.TextStatus, "Error uploading json", MessageBoxButton.OK, MessageBoxImage.Error);
                             return;
                         }
 
                         if (response != null && !response.IsSuccessStatusCode)
                         {
-                            MessageBox.Show($"Failed to upload {planetDisplayName} json. Response code: {response.StatusCode}", "Error uploading json", MessageBoxButton.OK, MessageBoxImage.Error);
+                            ParentDataContext.TextStatus = $"Failed to upload {planetDisplayName} json. Response code: {response.StatusCode}";
+                            MessageBox.Show(ParentDataContext.TextStatus, "Error uploading json", MessageBoxButton.OK, MessageBoxImage.Error);
                             return;
                         }
+
+                        ParentDataContext.TextStatus = $"Successfully uploaded world JSON for {planetDisplayName}";
                     }
                 }
             }

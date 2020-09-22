@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace BoundlessProxyUi.ProxyManager
 {
-    class ManagerWindowViewModel : INotifyPropertyChanged
+    public class ManagerWindowViewModel : INotifyPropertyChanged
     {
         public bool UserVerifiedGamePath
         {
@@ -90,6 +90,17 @@ namespace BoundlessProxyUi.ProxyManager
             {
                 _conversations = value;
                 OnPropertyChanged(nameof(Conversations));
+            }
+        }
+
+        private string _textStatus = "";
+        public string TextStatus
+        {
+            get { return _textStatus; }
+            set
+            {
+                _textStatus = value;
+                OnPropertyChanged(nameof(TextStatus));
             }
         }
 
