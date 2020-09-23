@@ -4,17 +4,12 @@ using BoundlessProxyUi.ProxyUi;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
+
 using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace BoundlessProxyUi.ProxyManager
 {
@@ -156,12 +151,13 @@ namespace BoundlessProxyUi.ProxyManager
             ActiveControl = fadeIn ? nextPage : null;
         }
 
-        private bool shutdownStarted = false;
         private bool shutdownCompleted = false;
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            if (shutdownStarted)
+            var dc = (ManagerWindowViewModel)DataContext;
+
+            if (dc.ShutdownStarted)
             {
                 if (!shutdownCompleted)
                 {
@@ -172,7 +168,7 @@ namespace BoundlessProxyUi.ProxyManager
             }
 
             e.Cancel = true;
-            shutdownStarted = true;
+            dc.ShutdownStarted = true;
 
             try
             {

@@ -21,9 +21,11 @@ namespace BoundlessProxyUi.ProxyUi
     public partial class ProxyUiWindow : Window
     {
         public static ProxyUiWindow Instance { get; set; }
+        ManagerWindowViewModel ParentDataContext;
 
-        public ProxyUiWindow()
+        public ProxyUiWindow(ManagerWindowViewModel dc)
         {
+            ParentDataContext = dc;
             Instance = this;
             //ServicePointManager.ServerCertificateValidationCallback += delegate { return true; };
             //ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12 | SecurityProtocolType.Ssl3;
@@ -195,15 +197,23 @@ namespace BoundlessProxyUi.ProxyUi
             m_dontMainSelect = false;
         }
 
-        private void Window_Closing(object sender, CancelEventArgs e)
-        {
-            this.Hide();
-            e.Cancel = true;
-        }
-
         private void PreviewNumberInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
         {
             e.Handled = numbersPattern.IsMatch(e.Text);
+        }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            ProxyUiWindow.Instance = null;
+        }
+
+        private void Window_Closing(object sender, CancelEventArgs e)
+        {
+            if (!ParentDataContext.ShutdownStarted)
+            {
+                e.Cancel = true;
+                Hide();
+            }
         }
     }
 }

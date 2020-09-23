@@ -10,6 +10,19 @@ namespace BoundlessProxyUi.JsonUpload
 {
     class JsonUploadWindowViewModel : INotifyPropertyChanged
     {
+        public bool ShowErrors
+        {
+            get
+            {
+                return Config.GetSetting(nameof(ShowErrors), true);
+            }
+            set
+            {
+                Config.SetSetting(nameof(ShowErrors), value);
+                OnPropertyChanged(nameof(ShowErrors));
+            }
+        }
+
         public bool JsonSaveFile
         {
             get
@@ -20,6 +33,18 @@ namespace BoundlessProxyUi.JsonUpload
             {
                 Config.SetSetting(nameof(JsonSaveFile), value);
                 OnPropertyChanged(nameof(JsonSaveFile));
+            }
+        }
+        public bool JsonSaveWcFile
+        {
+            get
+            {
+                return Config.GetSetting(nameof(JsonSaveWcFile), false);
+            }
+            set
+            {
+                Config.SetSetting(nameof(JsonSaveWcFile), value);
+                OnPropertyChanged(nameof(JsonSaveWcFile));
             }
         }
 
@@ -36,6 +61,19 @@ namespace BoundlessProxyUi.JsonUpload
             }
         }
 
+        public bool JsonSaveWcApi
+        {
+            get
+            {
+                return Config.GetSetting(nameof(JsonSaveWcApi), false);
+            }
+            set
+            {
+                Config.SetSetting(nameof(JsonSaveWcApi), value);
+                OnPropertyChanged(nameof(JsonSaveWcApi));
+            }
+        }
+
         public string JsonApiKey
         {
             get
@@ -46,6 +84,19 @@ namespace BoundlessProxyUi.JsonUpload
             {
                 Config.SetSetting(nameof(JsonApiKey), value);
                 OnPropertyChanged(nameof(JsonApiKey));
+            }
+        }
+
+        public string BaseFolder
+        {
+            get
+            {
+                return Config.GetSetting(nameof(BaseFolder), Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
+            }
+            set
+            {
+                Config.SetSetting(nameof(BaseFolder), value);
+                OnPropertyChanged(nameof(BaseFolder));
             }
         }
 

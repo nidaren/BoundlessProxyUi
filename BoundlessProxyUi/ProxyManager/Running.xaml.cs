@@ -35,42 +35,45 @@ namespace BoundlessProxyUi.ProxyManager
 
         private ManagerWindowViewModel dc;
 
-        private void UserControl_Loaded(object sender, RoutedEventArgs e)
-        {
-            if (ProxyUiWindow.Instance == null)
-            {
-                ProxyUiWindow.Instance = new ProxyUiWindow();
-                ProxyUiWindow.Instance.Hide();
-            }
-
-            if (JsonUploadWindow.Instance == null)
-            {
-                JsonUploadWindow.Instance = new JsonUploadWindow(dc);
-                JsonUploadWindow.Instance.Hide();
-            }
-        }
-
         private void settingsButton_Click(object sender, RoutedEventArgs e)
         {
-            if (!JsonUploadWindow.Instance.IsVisible) { 
+            if (JsonUploadWindow.Instance == null) {
+                new JsonUploadWindow(dc);
                 JsonUploadWindow.Instance.Show();
             }
             else
             {
+                JsonUploadWindow.Instance.Show();
                 JsonUploadWindow.Instance.Focus();
             }
         }
 
         private void proxyUIButton_Click(object sender, RoutedEventArgs e)
         {
-            if (!ProxyUiWindow.Instance.IsVisible)
+            if (ProxyUiWindow.Instance == null)
             {
+                new ProxyUiWindow(dc);
                 ProxyUiWindow.Instance.Show();
             }
             else
             {
+                ProxyUiWindow.Instance.Show();
                 ProxyUiWindow.Instance.Focus();
             }
+        }
+
+        private void UserControl_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (ProxyUiWindow.Instance == null)
+            {
+                new ProxyUiWindow(dc);
+            }
+
+            if (JsonUploadWindow.Instance == null)
+            {
+                new JsonUploadWindow(dc);
+            }
+
         }
     }
 }

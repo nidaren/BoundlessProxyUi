@@ -5,8 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BoundlessProxyUi.JsonUpload"
         mc:Ignorable="d"
-        Title="JsonUploadWindow" Height="158" Width="477" ResizeMode="CanMinimize" Closing="Window_Closing">
-    <Grid VerticalAlignment="Top" HorizontalAlignment="Center" Margin="14,7,13,0">
+        Title="Settings" Height="355" Width="551" ResizeMode="CanMinimize" Topmost="True" Closed="Window_Closed" Closing="Window_Closing">
+
+    <Grid VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="23,0,22,2">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="60" />
             <ColumnDefinition Width="120"/>
@@ -18,18 +19,46 @@
             <RowDefinition Height="auto" />
             <RowDefinition Height="auto" />
             <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
         </Grid.RowDefinitions>
 
-        <TextBlock Margin="5" Grid.Row="0" Grid.Column="0" TextAlignment="Right" Grid.ColumnSpan="3">Save planet JSON to disk:</TextBlock>
-        <CheckBox Name="chkFile" Margin="5" Grid.Row="0" Grid.Column="3" IsChecked="{Binding JsonSaveFile}" />
+        <Label Margin="5" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" FontWeight="Bold">General Settings</Label>
+        
+        <TextBlock Margin="5" Grid.Row="1" Grid.Column="0" TextAlignment="Right" Grid.ColumnSpan="3">Show Errors:</TextBlock>
+        <CheckBox Name="chkErrors" Margin="5" Grid.Row="1" Grid.Column="3" IsChecked="{Binding ShowErrors}" />
 
-        <TextBlock Margin="5" Grid.Row="1" Grid.Column="0" TextAlignment="Right" Grid.ColumnSpan="3" Text="Upload planet JSON to Boundlexx:"/>
-        <CheckBox Name="chkApi" Margin="5" Grid.Row="1" Grid.Column="3" IsChecked="{Binding JsonSaveApi}" />
+        
+        <Label Margin="5" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="4" FontWeight="Bold">Disk Settings</Label>
+        
+        <TextBlock Margin="5" Grid.Row="3" Grid.Column="0" TextAlignment="Right" Grid.ColumnSpan="3">Save World JSON to disk:</TextBlock>
+        <CheckBox Name="chkFile" Margin="5" Grid.Row="3" Grid.Column="3" IsChecked="{Binding JsonSaveFile}" />
 
-        <TextBlock Margin="5" Grid.Row="2" Grid.Column="0" TextAlignment="Right" Grid.ColumnSpan="3" Text="Boundlexx API key:"/>
-        <TextBox x:Name="txtApiKey" Margin="5" Grid.Row="2" Grid.Column="3" MinWidth="200" Text="{Binding JsonApiKey}" />
+        <TextBlock Margin="5" Grid.Row="4" Grid.Column="0" TextAlignment="Right" Grid.ColumnSpan="3">Save World Control JSON to disk:</TextBlock>
+        <CheckBox Name="chkWcFile" Margin="5" Grid.Row="4" Grid.Column="3" IsChecked="{Binding JsonSaveWcFile}" />
 
-        <TextBlock Margin="5" Grid.Row="3" Grid.Column="0" TextAlignment="Right" Grid.ColumnSpan="3" Text="Boundlexx Base URL:"/>
-        <TextBox x:Name="txtBaseUrl" Margin="5" Grid.Row="3" Grid.Column="3" MinWidth="200" Text="{Binding ApiBaseUrl}" />
+        <TextBlock Margin="5" Grid.Row="5" Grid.Column="0" TextAlignment="Right" Grid.ColumnSpan="3" Text="Save Folder:"/>
+        <TextBox x:Name="txtBaseFolder" Margin="5" Grid.Row="5" Grid.Column="3" MinWidth="200" Text="{Binding BaseFolder}" />
+
+        
+        <Label Margin="5" Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="4" FontWeight="Bold">Boundlexx Settings</Label>
+
+        <TextBlock Margin="5" Grid.Row="7" Grid.Column="0" TextAlignment="Right" Grid.ColumnSpan="3" Text="Boundlexx API key:"/>
+        <TextBox x:Name="txtApiKey" Margin="5" Grid.Row="7" Grid.Column="3" MinWidth="200" Text="{Binding JsonApiKey}" />
+
+        <TextBlock Margin="5" Grid.Row="8" Grid.Column="0" TextAlignment="Right" Grid.ColumnSpan="3" Text="Boundlexx Base URL:"/>
+        <TextBox x:Name="txtBaseUrl" Margin="5" Grid.Row="8" Grid.Column="3" MinWidth="200" Text="{Binding ApiBaseUrl}" />
+
+        <TextBlock Margin="5" Grid.Row="9" Grid.Column="0" TextAlignment="Right" Grid.ColumnSpan="3" Text="Upload World JSON to Boundlexx:"/>
+        <CheckBox Name="chkApi" Margin="5" Grid.Row="9" Grid.Column="3" IsChecked="{Binding JsonSaveApi}" />
+
+        <TextBlock Margin="5" Grid.Row="10" Grid.Column="0" TextAlignment="Right" Grid.ColumnSpan="3" Text="Upload World Control JSON to Boundlexx:"/>
+        <CheckBox Name="chkWcApi" Margin="5" Grid.Row="10" Grid.Column="3" IsChecked="{Binding JsonSaveWcApi}" />
+
     </Grid>
 </Window>

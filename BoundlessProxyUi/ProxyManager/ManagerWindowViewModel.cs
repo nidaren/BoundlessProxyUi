@@ -104,6 +104,12 @@ namespace BoundlessProxyUi.ProxyManager
             }
         }
 
+        public bool ShutdownStarted
+        {
+            get;
+            set;
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         private void OnPropertyChanged(string propertyName)
