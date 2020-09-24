@@ -140,6 +140,12 @@ namespace BoundlessProxyUi.JsonUpload
                 jsonWriter.WritePropertyName("world_id");
                 jsonWriter.WriteValue(planetId);
 
+                var colorsFinalized = !(buffer.Skip(offset).First() == START_BYTE);
+                offset += 1;
+
+                jsonWriter.WritePropertyName("finalized");
+                jsonWriter.WriteValue(colorsFinalized);
+
                 var globalPerms = buffer.Skip(offset).First();
                 offset += 1;
 
@@ -237,7 +243,7 @@ namespace BoundlessProxyUi.JsonUpload
             return jsonString.ToString();
         }
 
-        private static byte START_BYTE = 65;
+        private static byte START_BYTE = 64;
         private void HandleUploadWorldControl(int planetId, string planetDisplayName, WsMessage message)
         {
             if (message.Buffer.Length < 2000)
@@ -250,9 +256,9 @@ namespace BoundlessProxyUi.JsonUpload
                 while (offset + 2 < message.Buffer.Length) {
                     // World Control binary has 65 followed by a byte of 0-7 (global permissions)
                     var possibleStart = message.Buffer.Skip(offset).Take(2).ToArray();
-                    if (possibleStart[0] == START_BYTE && possibleStart[1] <= 7)
+                    // 64 = colors not finalized | 65 = colors finalized
+                    if (possibleStart[1] <= 7 && (possibleStart[0] == START_BYTE || possibleStart[0] == (START_BYTE + 1)))
                     {
-                        offset += 1;
                         break;
                     }
                     offset += 1;
