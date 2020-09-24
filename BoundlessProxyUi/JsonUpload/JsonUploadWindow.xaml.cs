@@ -140,29 +140,30 @@ namespace BoundlessProxyUi.JsonUpload
                 jsonWriter.WritePropertyName("world_id");
                 jsonWriter.WriteValue(planetId);
 
-                var gloablPerms = buffer.Skip(offset).First();
+                var globalPerms = buffer.Skip(offset).First();
                 offset += 1;
 
                 jsonWriter.WritePropertyName("global_perms");
                 jsonWriter.WriteStartObject();
 
                 jsonWriter.WritePropertyName("can_visit");
-                jsonWriter.WriteValue((gloablPerms & 1) == 1);
+                jsonWriter.WriteValue((globalPerms & 1) == 1);
 
                 jsonWriter.WritePropertyName("can_edit");
-                jsonWriter.WriteValue((gloablPerms & 4) == 4);
+                jsonWriter.WriteValue((globalPerms & 4) == 4);
 
                 jsonWriter.WritePropertyName("can_claim");
-                jsonWriter.WriteValue((gloablPerms & 2) == 2);
+                jsonWriter.WriteValue((globalPerms & 2) == 2);
 
                 jsonWriter.WriteEndObject();
 
-                var numGuilds = buffer.Skip(offset).First();
+                var numGuilds = BitConverter.ToUInt16(GetBytes(buffer, offset, 2), 0);
+                offset += 2;
                 if (numGuilds > 0)
                 {
                     // 6 bytes of guild data
                     // last bit is permission data
-                    offset += (6 * numGuilds);
+                    offset += (5 * numGuilds);
                 }
 
                 var playerCount = BitConverter.ToUInt16(GetBytes(buffer, offset, 2), 0);
@@ -237,7 +238,6 @@ namespace BoundlessProxyUi.JsonUpload
         }
 
         private static byte START_BYTE = 65;
-        private static byte COLOR_START = 45;
         private void HandleUploadWorldControl(int planetId, string planetDisplayName, WsMessage message)
         {
             if (message.Buffer.Length < 2000)
@@ -322,7 +322,8 @@ namespace BoundlessProxyUi.JsonUpload
                 }
             }
             catch (Exception) { }
-            //catch (Exception ex) {
+            //catch (Exception ex)
+            //{
             //    ParentDataContext.TextStatus = $"Error decoding World Control:\r\n{ex.Message}";
             //    if (MyDataContext.ShowErrors)
             //    {
