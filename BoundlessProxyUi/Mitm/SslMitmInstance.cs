@@ -783,13 +783,17 @@ namespace BoundlessProxyUi.Mitm
 
                     Kill(direction == CommPacketDirection.ClientToServer);
                 }
+                //catch (Exception ex)
+                //{
+                //    ProxyManagerWindow.Instance.Dispatcher.Invoke(new Action(() =>
+                //    {
+                //        MessageBox.Show($"4 Fatal error: {ex.Message}");
+                //    }));
+
+                //    Kill(direction == CommPacketDirection.ClientToServer);
+                //}
                 catch (Exception)
                 {
-                    //MainWindow.Instance.Dispatcher.Invoke(new Action(() =>
-                    //{
-                    //    MessageBox.Show($"4 Fatal error: {ex.Message}");
-                    //}));
-
                     Kill(direction == CommPacketDirection.ClientToServer);
                 }
             }).Start();

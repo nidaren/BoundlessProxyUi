@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BoundlessProxyUi.JsonUpload"
         mc:Ignorable="d"
-        Title="Settings" Height="355" Width="551" ResizeMode="CanMinimize" Topmost="True" Closed="Window_Closed" Closing="Window_Closing">
+        Title="Settings" Height="355" Width="551" ResizeMode="CanMinimize" Topmost="False" Closed="Window_Closed" Closing="Window_Closing">
 
     <Grid VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="23,0,22,2">
         <Grid.ColumnDefinitions>

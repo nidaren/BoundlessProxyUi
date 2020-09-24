@@ -19,6 +19,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using WpfHexaEditor.Core.MethodExtention;
 
 namespace BoundlessProxyUi.JsonUpload
 {
@@ -139,6 +140,31 @@ namespace BoundlessProxyUi.JsonUpload
                 jsonWriter.WritePropertyName("world_id");
                 jsonWriter.WriteValue(planetId);
 
+                var gloablPerms = buffer.Skip(offset).First();
+                offset += 1;
+
+                jsonWriter.WritePropertyName("global_perms");
+                jsonWriter.WriteStartObject();
+
+                jsonWriter.WritePropertyName("can_visit");
+                jsonWriter.WriteValue((gloablPerms & 1) == 1);
+
+                jsonWriter.WritePropertyName("can_edit");
+                jsonWriter.WriteValue((gloablPerms & 4) == 4);
+
+                jsonWriter.WritePropertyName("can_claim");
+                jsonWriter.WriteValue((gloablPerms & 2) == 2);
+
+                jsonWriter.WriteEndObject();
+
+                var numGuilds = buffer.Skip(offset).First();
+                if (numGuilds > 0)
+                {
+                    // 6 bytes of guild data
+                    // last bit is permission data
+                    offset += (6 * numGuilds);
+                }
+
                 var playerCount = BitConverter.ToUInt16(GetBytes(buffer, offset, 2), 0);
                 offset += 2;
 
@@ -210,7 +236,8 @@ namespace BoundlessProxyUi.JsonUpload
             return jsonString.ToString();
         }
 
-        private static byte[] COLOR_DATA_START = new byte[] { 15, 0, 0, 7 };
+        private static byte START_BYTE = 65;
+        private static byte COLOR_START = 45;
         private void HandleUploadWorldControl(int planetId, string planetDisplayName, WsMessage message)
         {
             if (message.Buffer.Length < 2000)
@@ -220,18 +247,18 @@ namespace BoundlessProxyUi.JsonUpload
 
             try { 
                 var offset = 0;
-                while (offset < message.Buffer.Length) {
-                    var isMatch = message.Buffer.Skip(offset).Take(4).ToArray().SequenceEqual(COLOR_DATA_START);
-
-                    if (isMatch)
+                while (offset + 2 < message.Buffer.Length) {
+                    // World Control binary has 65 followed by a byte of 0-7 (global permissions)
+                    var possibleStart = message.Buffer.Skip(offset).Take(2).ToArray();
+                    if (possibleStart[0] == START_BYTE && possibleStart[1] <= 7)
                     {
-                        offset += 4;
+                        offset += 1;
                         break;
                     }
                     offset += 1;
                 }
 
-                if (offset >= message.Buffer.Length)
+                if (offset + 2 >= message.Buffer.Length)
                 {
                     return;
                 }
@@ -254,7 +281,7 @@ namespace BoundlessProxyUi.JsonUpload
                         ParentDataContext.TextStatus = $"Failed to write {filePath}:\r\n{ex.Message}";
                         if (MyDataContext.ShowErrors)
                         {
-                            MessageBox.Show(ParentDataContext.TextStatus, "Error writing json", MessageBoxButton.OK, MessageBoxImage.Error);
+                            MessageBox.Show(ParentDataContext.TextStatus, "Error writing JSON", MessageBoxButton.OK, MessageBoxImage.Error);
                         }
                         return;
                     }
@@ -294,9 +321,15 @@ namespace BoundlessProxyUi.JsonUpload
                     }
                 }
             }
-            catch (Exception) {
-                return;
-            }
+            catch (Exception) { }
+            //catch (Exception ex) {
+            //    ParentDataContext.TextStatus = $"Error decoding World Control:\r\n{ex.Message}";
+            //    if (MyDataContext.ShowErrors)
+            //    {
+            //        MessageBox.Show(ParentDataContext.TextStatus, "Error decoding World Control", MessageBoxButton.OK, MessageBoxImage.Error);
+            //    }
+            //    return;
+            //}
         }
 
         public void OnFrameIn<T>(int planetId, string planetDisplayName, T frame_object)
@@ -305,16 +338,6 @@ namespace BoundlessProxyUi.JsonUpload
 
             foreach (var curMessage in frame.Messages)
             {
-                //if (curMessage.Buffer.Length > 0)
-                //{
-                //    if (curMessage.ApiId.HasValue && curMessage.ApiId.Value == 0)
-                //    {
-                //        HandleWorldJson(planetId, planetDisplayName, curMessage);
-                //    }
-                //    else if (!curMessage.ApiId.HasValue && curMessage.Buffer.Length > 2000) { 
-                //        HandleUploadWorldControl(planetId, planetDisplayName, curMessage);
-                //    }
-                //}
                 if (curMessage.ApiId.HasValue && curMessage.Buffer.Length > 0)
                 {
                     switch (curMessage.ApiId.Value)
