@@ -181,6 +181,11 @@ namespace BoundlessProxyUi.Util
                 var result = ParseWorldControlJson(planetId, message.Buffer, offset);
                 jsonString = result.Item1;
                 isSimple = result.Item2;
+
+                if (isSimple)
+                {
+                    return;
+                }
             }
             catch (Exception ex) {
                 Log.Error(ex, "Error decoding World Control message");

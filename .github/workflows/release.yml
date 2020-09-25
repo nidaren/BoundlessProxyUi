@@ -1,0 +1,96 @@
+# This is a basic workflow to help you get started with Actions
+
+name: BoundlexxProxyUI Create Release
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+on:
+  push:
+    tags: [ "1.*" ]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    name: Build
+    # The type of runner that the job will run on
+    runs-on: windows-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.0.1
+
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v1.0.2
+
+      - name: Restore NuGet Packages
+        run: nuget restore BoundlessProxyUi.sln
+
+      - name: Build and Publish BoundlexxProxyUi
+        run: msbuild BoundlessProxyUi.sln /p:Configuration=Release /t:Publish /p:Platform=x64 /p:PublishProfile=x64Profile /p:OutputPath=bin\x64\Release
+
+      - name: Zip Portable
+        run: |
+          cd .\BoundlessProxyUi\bin\x64\Release\
+          Remove-Item -Force .\BoundlessProxyUi.application
+          Remove-Item -Force .\BoundlessProxyUi.pdb
+          tar.exe -a -c -f ${{ github.workspace }}\BoundlessProxyUi_Portable.zip *
+          cd ${{ github.workspace }}
+
+      - name: Upload Portable Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: BoundlessProxyUi_Portable
+          path: BoundlessProxyUi_Portable.zip
+
+      - name: Zip Installer
+        run: |
+          cd .\BoundlessProxyUi\bin\x64\Releaseapp.publish\
+          tar.exe -a -c -f ${{ github.workspace }}\BoundlessProxyUi_Installer.zip *
+          cd ${{ github.workspace }}
+
+      - name: Upload Installer Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: BoundlessProxyUi_Installer
+          path: BoundlessProxyUi_Installer.zip
+
+      - name: Create Release
+        uses: actions/github-script@v2
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            console.log('environment', process.versions);
+
+            const fs = require('fs').promises;
+
+            const { repo: { owner, repo }, sha } = context;
+            console.log({ owner, repo, sha });
+
+            const release = await github.repos.createRelease({
+              owner, repo,
+              tag_name: process.env.GITHUB_REF,
+              draft: true,
+              target_commitish: sha,
+              body: 'Actions Build: https://github.com/' + process.env.GITHUB_REPOSITORY + '/actions/runs/' + process.env.GITHUB_RUN_ID
+            });
+
+            console.log('created release', { release });
+
+            await github.repos.uploadReleaseAsset({
+              owner, repo,
+              release_id: release.data.id,
+              name: 'BoundlessProxyUi_Portable.zip',
+              data: await fs.readFile(`./BoundlessProxyUi_Portable.zip`)
+            });
+
+            await github.repos.uploadReleaseAsset({
+              owner, repo,
+              release_id: release.data.id,
+              name: 'BoundlessProxyUi_Installer.zip',
+              data: await fs.readFile(`./BoundlessProxyUi_Installer.zip`)
+            });
