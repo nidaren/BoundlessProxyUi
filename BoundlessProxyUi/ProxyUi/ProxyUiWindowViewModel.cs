@@ -96,11 +96,11 @@ namespace BoundlessProxyUi.ProxyUi
         {
             get
             {
-                return Config.GetSetting(nameof(PacketsPerInstance), 500);
+                return ProxyManagerConfig.Instance.PacketsPerInstance;
             }
             set
             {
-                Config.SetSetting(nameof(PacketsPerInstance), value);
+                ProxyManagerConfig.Instance.PacketsPerInstance = value;
                 OnPropertyChanged(nameof(PacketsPerInstance));
             }
         }
@@ -109,11 +109,11 @@ namespace BoundlessProxyUi.ProxyUi
         {
             get
             {
-                return Config.GetSetting(nameof(DeathTimeout), 60);
+                return ProxyManagerConfig.Instance.DeathTimeout;
             }
             set
             {
-                Config.SetSetting(nameof(DeathTimeout), value);
+                ProxyManagerConfig.Instance.DeathTimeout = value;
                 OnPropertyChanged(nameof(DeathTimeout));
             }
         }
@@ -147,7 +147,7 @@ namespace BoundlessProxyUi.ProxyUi
                         return;
                     }
 
-                    var maxPackets = windowInstance.GetDataContext<ProxyUiWindowViewModel>().PacketsPerInstance;
+                    var maxPackets = ProxyManagerConfig.Instance.PacketsPerInstance;
 
                     while (connectionInstance.ChildPackets.Count > maxPackets)
                     {
@@ -160,7 +160,7 @@ namespace BoundlessProxyUi.ProxyUi
 
                     void recursiveCheck(CommPacket innerPacket)
                     {
-                        foreach (var curSearch in windowInstance.GetDataContext<ProxyUiWindowViewModel>().Searches)
+                        foreach (var curSearch in Searches)
                         {
                             if (innerPacket.Data.Search(innerPacket.Data.Length, curSearch.searchBytes) > -1)
                             {

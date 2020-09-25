@@ -5,7 +5,7 @@ using System.ComponentModel;
 
 namespace BoundlessProxyUi.ProxyUi
 {
-    class ConnectionInstance : INotifyPropertyChanged
+    public class ConnectionInstance : INotifyPropertyChanged
     {
         public Guid Id { get; set; }
 

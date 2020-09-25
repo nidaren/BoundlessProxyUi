@@ -9,7 +9,7 @@ namespace BoundlessProxyUi.ProxyUi
     /// <summary>
     /// Types of searches the user can perform
     /// </summary>
-    enum UserSearchType
+    public enum UserSearchType
     {
         SignedInt32,
         UnsignedInt32,
@@ -28,7 +28,7 @@ namespace BoundlessProxyUi.ProxyUi
     /// <summary>
     /// Object to store what the user is currently searching for
     /// </summary>
-    class UserSearch
+    public class UserSearch
     {
         /// <summary>
         /// The type for this search

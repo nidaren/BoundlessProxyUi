@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:BoundlessProxyUi"
         xmlns:control="clr-namespace:WpfHexaEditor;assembly=WPFHexaEditor"
         mc:Ignorable="d"
-        Title="Boundless Proxy UI" Height="900" Width="1250" Closed="Window_Closed" Closing="Window_Closing">
+        Title="Boundless Proxy UI" Height="900" Width="1250" Closed="Window_Closed">
     <Grid>
 
         <Grid.RowDefinitions>
@@ -58,7 +58,7 @@
 
             <ListView Name="lstGroups" Grid.Row="1" Margin="5" ItemsSource="{Binding Groups}" DisplayMemberPath="GroupingName" SelectedItem="{Binding SelectedGroup}" />
             <ListView Name="lstInstances" Grid.Row="1" Grid.Column="1" Margin="5" ItemsSource="{Binding SelectedGroup.Instances}" DisplayMemberPath="DisplayName" SelectedItem="{Binding SelectedInstance}" />
-            <TreeView Name="lstPackets" Grid.Row="1" Grid.Column="2" Margin="5" DataContext="{Binding SelectedInstance}" ItemsSource="{Binding ChildPackets}" SelectedItemChanged="lstPackets_SelectedItemChanged">
+            <TreeView Name="lstPackets" Grid.Row="1" Grid.Column="2" Margin="5" DataContext="{Binding SelectedInstance}" ItemsSource="{Binding ChildPackets}" SelectedItemChanged="LstPackets_SelectedItemChanged">
                 <TreeView.ItemTemplate>
                     <HierarchicalDataTemplate ItemsSource="{Binding ChildPackets}">
                         <TextBlock Text="{Binding DisplayName}" />

@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:BoundlessProxyUi.ProxyManager"
              xmlns:pcg="clr-namespace:BoundlessProxyUi"
              mc:Ignorable="d" 
-             d:DesignHeight="502" d:DesignWidth="384" Background="White" Loaded="UserControl_Loaded">
+             d:DesignHeight="502" d:DesignWidth="384" Background="White">
     <Grid Margin="0,15">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="35*"/>
@@ -23,8 +23,8 @@
         </StackPanel>
 
         <TextBlock HorizontalAlignment="Center" Margin="86,208,102,208" FontSize="18" Grid.Row="1" VerticalAlignment="Center" Grid.Column="1" >Running!</TextBlock>
-        <Button x:Name="settingsButton" Content="Open Settings" HorizontalAlignment="Left" Margin="45,288,0,0" Grid.Row="1" VerticalAlignment="Top" Width="150" Height="40" Click="settingsButton_Click" Grid.Column="1"/>
-        <Button x:Name="proxyUIButton" Content="Open ProxyUI (Advanced)" HorizontalAlignment="Left" Margin="45,348,0,0" Grid.Row="1" VerticalAlignment="Top" Width="150" Height="40" Click="proxyUIButton_Click" Grid.Column="1"/>
+        <Button x:Name="settingsButton" Content="Open Settings" HorizontalAlignment="Left" Margin="45,288,0,0" Grid.Row="1" VerticalAlignment="Top" Width="150" Height="40" Click="SettingsButton_Click" Grid.Column="1"/>
+        <Button x:Name="proxyUIButton" Content="Open ProxyUI (Advanced)" HorizontalAlignment="Left" Margin="45,348,0,0" Grid.Row="1" VerticalAlignment="Top" Width="150" Height="40" Click="ProxyUIButton_Click" Grid.Column="1"/>
 
         <StatusBar Grid.ColumnSpan="3" HorizontalAlignment="Left" Height="20" Margin="0,433,0,-13" Grid.Row="1" VerticalAlignment="Top" Width="384" Grid.RowSpan="2">
             <StatusBarItem Height="20" VerticalAlignment="Bottom">

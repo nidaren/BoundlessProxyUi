@@ -9,7 +9,7 @@ namespace BoundlessProxyUi.WsData
     /// <summary>
     /// Class to parse and store a single websocket frame
     /// </summary>
-    class WsFrame
+    public class WsFrame
     {
         #region RFC 6455 5.2 Base Framing Protocol
 

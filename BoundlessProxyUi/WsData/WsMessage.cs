@@ -5,7 +5,7 @@ namespace BoundlessProxyUi.WsData
     /// <summary>
     /// Class to store a single message within a websocket frame
     /// </summary>
-    class WsMessage
+    public class WsMessage
     {
         /// <summary>
         /// Creates a new instance of WsMessage

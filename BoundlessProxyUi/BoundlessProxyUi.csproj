@@ -59,6 +59,15 @@
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="Serilog, Version=2.0.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
+      <HintPath>..\packages\Serilog.2.10.0\lib\net46\Serilog.dll</HintPath>
+    </Reference>
+    <Reference Include="Serilog.Sinks.Console, Version=3.1.1.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
+      <HintPath>..\packages\Serilog.Sinks.Console.3.1.1\lib\net45\Serilog.Sinks.Console.dll</HintPath>
+    </Reference>
+    <Reference Include="Serilog.Sinks.File, Version=2.0.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
+      <HintPath>..\packages\Serilog.Sinks.File.4.1.0\lib\net45\Serilog.Sinks.File.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
@@ -88,10 +97,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="JsonUpload\JsonUploadWindow.xaml.cs">
-      <DependentUpon>JsonUploadWindow.xaml</DependentUpon>
+    <Compile Include="SettingsUi\SettingsWindow.xaml.cs">
+      <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="JsonUpload\JsonUploadWindowViewModel.cs" />
+    <Compile Include="SettingsUi\SettingsUiViewModel.cs" />
     <Compile Include="Util\ByteExtensions.cs" />
     <Compile Include="Util\Config.cs" />
     <Compile Include="Util\Constants.cs" />
@@ -150,9 +159,11 @@
     <Compile Include="Mitm\SslMitmInstance.cs" />
     <Compile Include="Mitm\UdpProxy.cs" />
     <Compile Include="ProxyUi\UserSearch.cs" />
+    <Compile Include="Util\EventHandler.cs" />
+    <Compile Include="Util\ProxyManagerConfig.cs" />
     <Compile Include="WsData\WsFrame.cs" />
     <Compile Include="WsData\WsMessage.cs" />
-    <Page Include="JsonUpload\JsonUploadWindow.xaml">
+    <Page Include="SettingsUi\SettingsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

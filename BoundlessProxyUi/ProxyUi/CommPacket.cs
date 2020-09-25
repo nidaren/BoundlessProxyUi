@@ -2,14 +2,13 @@
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Security.RightsManagement;
 
 namespace BoundlessProxyUi.ProxyUi
 {
     /// <summary>
     /// Enumeration to indicate the direction of a packet
     /// </summary>
-    enum CommPacketDirection
+    public enum CommPacketDirection
     {
         /// <summary>
         /// Client to server
@@ -25,7 +24,7 @@ namespace BoundlessProxyUi.ProxyUi
     /// <summary>
     /// Class to store a data packet
     /// </summary>
-    class CommPacket
+    public class CommPacket
     {
         /// <summary>
         /// The direction of a packet

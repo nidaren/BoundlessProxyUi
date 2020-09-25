@@ -15,11 +15,11 @@ using BoundlessProxyUi.WsData;
 using BoundlessProxyUi.ProxyUi;
 using BoundlessProxyUi.Util;
 using BoundlessProxyUi.ProxyManager.Components;
-using BoundlessProxyUi.JsonUpload;
+using Serilog;
 
 namespace BoundlessProxyUi.Mitm
 {
-    class SslMitmInstance
+    public class SslMitmInstance
     {
         private static readonly Dictionary<string, KeyValuePair<string, int>> planetLookup = new Dictionary<string, KeyValuePair<string, int>>();
 
@@ -150,6 +150,7 @@ namespace BoundlessProxyUi.Mitm
 
                 if (exception != null)
                 {
+                    Log.Error(exception, "UDP Thread error");
                     MessageBox.Show(exception.Message);
                     KillUdp();
                 }
@@ -175,7 +176,7 @@ namespace BoundlessProxyUi.Mitm
             m_client = client;
             m_server = server;
 
-            OnFrameIn += JsonUploadWindow.Instance.OnFrameIn;
+            OnFrameIn += WsEventHander.Instance.OnFrameIn;
 
             ForwardStreamNew(client, server, new byte[chunkSize], CommPacketDirection.ClientToServer);
             ForwardStreamNew(server, client, new byte[chunkSize], CommPacketDirection.ServerToClient);
@@ -259,14 +260,13 @@ namespace BoundlessProxyUi.Mitm
                 catch { }
             }
 
-            var proxyWindowInstance = ProxyUiWindow.Instance;
             var managerWindowInstance = ProxyManagerWindow.Instance;
 
-            if (proxyWindowInstance != null && managerWindowInstance != null)
+            if (managerWindowInstance != null)
             {
                 Task.Run(async () =>
                 {
-                    await Task.Delay(proxyWindowInstance.GetDataContext<ProxyUiWindowViewModel>().DeathTimeout * 1000);
+                    await Task.Delay(ProxyManagerConfig.Instance.DeathTimeout * 1000);
 
                     managerWindowInstance.Dispatcher.Invoke(new Action(() =>
                     {
@@ -640,46 +640,10 @@ namespace BoundlessProxyUi.Mitm
                             }
                             catch { }
 
-                            if (ProxyUiWindow.Instance.GetDataContext<ProxyUiWindowViewModel>().CaptureEnabled)
+                            Application.Current.Dispatcher.Invoke(() =>
                             {
-                                var parentPacket = new CommPacket
-                                {
-                                    Data = frame.HeaderBytes,
-                                    Direction = direction,
-                                    Id = Guid.NewGuid(),
-                                    Instance = m_connectionInstance,
-                                    ParentPacket = null,
-                                    Header = "Websocket Frame",
-                                };
-
-                                foreach (var curMessage in frame.Messages)
-                                {
-                                    var headerPacket = new CommPacket
-                                    {
-                                        Data = BitConverter.GetBytes((ushort)(curMessage.Buffer.Length + 1)).Concat(new byte[] { curMessage.ApiId ?? 0 }).ToArray(),
-                                        Direction = direction,
-                                        Id = Guid.NewGuid(),
-                                        Instance = m_connectionInstance,
-                                        ParentPacket = parentPacket,
-                                        Header = $"Websocket Message[0x{curMessage.ApiId ?? 0:X2}]",
-                                    };
-
-                                    var payloadPacket = new CommPacket
-                                    {
-                                        Data = curMessage.Buffer,
-                                        Direction = direction,
-                                        Id = Guid.NewGuid(),
-                                        Instance = m_connectionInstance,
-                                        ParentPacket = parentPacket,
-                                        Header = $"Websocket Payload",
-                                    };
-
-                                    headerPacket.ChildPackets.Add(payloadPacket);
-                                    parentPacket.ChildPackets.Add(headerPacket);
-                                };
-
-                                ProxyUiWindow.Instance.GetDataContext<ProxyUiWindowViewModel>().SendBytesToUi(m_connectionInstance, parentPacket);
-                            }
+                                ProxyUiWindow.AddFrame(frame, direction, m_connectionInstance);
+                            });
                         }
 
                         if (!ReadBytes(2))
@@ -783,17 +747,9 @@ namespace BoundlessProxyUi.Mitm
 
                     Kill(direction == CommPacketDirection.ClientToServer);
                 }
-                //catch (Exception ex)
-                //{
-                //    ProxyManagerWindow.Instance.Dispatcher.Invoke(new Action(() =>
-                //    {
-                //        MessageBox.Show($"4 Fatal error: {ex.Message}");
-                //    }));
-
-                //    Kill(direction == CommPacketDirection.ClientToServer);
-                //}
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    Log.Error(ex, "Forward Stream error");
                     Kill(direction == CommPacketDirection.ClientToServer);
                 }
             }).Start();
@@ -878,13 +834,10 @@ namespace BoundlessProxyUi.Mitm
 
         private void DestinationWrite(Stream destination, byte[] buffer, int count, CommPacketDirection direction)
         {
-            if (ProxyUiWindow.Instance.GetDataContext<ProxyUiWindowViewModel>().CaptureEnabled)
+            Application.Current.Dispatcher.Invoke(() =>
             {
-                byte[] saveData = new byte[count];
-                Buffer.BlockCopy(buffer, 0, saveData, 0, count);
-                SendBytesToUi(saveData, direction);
-            }
-
+                ProxyUiWindow.WriteBytes(buffer, count, direction, m_connectionInstance);
+            });
             TryWriteStream(destination, buffer, 0, count, direction == CommPacketDirection.ServerToClient);
         }
 
@@ -898,40 +851,6 @@ namespace BoundlessProxyUi.Mitm
             {
                 Kill(client);
             }
-        }
-
-        private void SendBytesToUi(byte[] saveData, CommPacketDirection direction)
-        {
-            var length = saveData.Search(saveData.Length, new byte[] { 13, 10 });
-            var dataStringSegments = Encoding.UTF8.GetString(saveData, 0, length).Split(' ');
-
-            string header = "HTTP Data";
-
-            if (dataStringSegments[2].StartsWith("HTTP"))
-            {
-                header = $"{dataStringSegments[0]} {dataStringSegments[1]}";
-            }
-            else if (dataStringSegments[0].StartsWith("HTTP"))
-            {
-                var desc = dataStringSegments[2];
-
-                for (int i = 3; i < dataStringSegments.Length; ++i)
-                {
-                    desc += $" {dataStringSegments[i]}";
-                }
-
-                header = $"{dataStringSegments[1]} {desc}";
-            }
-
-            ProxyUiWindow.Instance.GetDataContext<ProxyUiWindowViewModel>().SendBytesToUi(m_connectionInstance, new CommPacket
-            {
-                Data = saveData,
-                Direction = direction,
-                Id = Guid.NewGuid(),
-                Instance = m_connectionInstance,
-                ParentPacket = null,
-                Header = header,
-            });
         }
 
         public static void ChunkToBoundless(out int boundlessEast, out int boundlessNorth, 

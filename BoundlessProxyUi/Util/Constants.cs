@@ -16,5 +16,10 @@ namespace BoundlessProxyUi.Util
         /// Account server name to connect to
         /// </summary>
         public const string AccountServer = "account.playboundless.com";
+
+        /// <summary>
+        /// Domain for Boundlexx
+        /// </summary>
+        public const string BoundlexxApi = "api.boundlexx.app";
     }
 }

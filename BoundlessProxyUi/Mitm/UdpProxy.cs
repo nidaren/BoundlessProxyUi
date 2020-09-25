@@ -1,18 +1,20 @@
 ﻿using BoundlessProxyUi.ProxyManager;
 using BoundlessProxyUi.ProxyManager.Components;
 using BoundlessProxyUi.ProxyUi;
+using BoundlessProxyUi.Util;
 using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using System.Timers;
+using System.Windows;
 
 namespace BoundlessProxyUi.Mitm
 {
     /// <summary>
     /// Class used to MITM a UDP connection
     /// </summary>
-    class UdpProxy
+    public class UdpProxy
     {
         /// <summary>
         /// Creates a new instance of UdpProxy
@@ -129,7 +131,7 @@ namespace BoundlessProxyUi.Mitm
 
                         m_deleteTimer = new Timer
                         {
-                            Interval = Math.Max(ProxyUiWindow.Instance.GetDataContext<ProxyUiWindowViewModel>().DeathTimeout * 1000, 10000),
+                            Interval = Math.Max(ProxyManagerConfig.Instance.DeathTimeout * 1000, 10000),
                         };
 
                         m_deleteTimer.Elapsed += deleteTimer_Elapsed;
@@ -184,9 +186,9 @@ namespace BoundlessProxyUi.Mitm
                         {
                             InstanceAdded = true;
 
-                            if (ProxyUiWindow.Instance.GetDataContext<ProxyUiWindowViewModel>().CaptureEnabled)
+                            Application.Current.Dispatcher.Invoke(() =>
                             {
-                                ProxyUiWindow.Instance.GetDataContext<ProxyUiWindowViewModel>().SendBytesToUi(m_connectionInstance, new CommPacket
+                                ProxyUiWindow.SendBytesToUi(m_connectionInstance, new CommPacket
                                 {
                                     Data = bytes,
                                     Direction = CommPacketDirection.ClientToServer,
@@ -195,7 +197,7 @@ namespace BoundlessProxyUi.Mitm
                                     ParentPacket = null,
                                     Header = "UDP data",
                                 });
-                            }
+                            });
 
                             if (sender.Send(bytes, bytes.Length, RemoteHost, RemotePort) != bytes.Length)
                             {

@@ -4,7 +4,7 @@ using System.Windows.Controls;
 
 namespace BoundlessProxyUi.ProxyUi
 {
-    class ConnectionGrouping : TreeViewItem
+    public class ConnectionGrouping : TreeViewItem
     {
         public string GroupingName { get; set; }
 

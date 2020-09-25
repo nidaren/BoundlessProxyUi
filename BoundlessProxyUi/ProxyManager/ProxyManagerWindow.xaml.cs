@@ -1,6 +1,7 @@
-﻿using BoundlessProxyUi.JsonUpload;
+﻿using BoundlessProxyUi.SettingsUi;
 using BoundlessProxyUi.ProxyManager.Components;
 using BoundlessProxyUi.ProxyUi;
+using BoundlessProxyUi.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,8 @@ using System.Windows.Controls;
 using System.Windows.Data;
 
 using System.Windows.Media.Animation;
+using Serilog;
+using System.IO;
 
 namespace BoundlessProxyUi.ProxyManager
 {
@@ -19,12 +22,14 @@ namespace BoundlessProxyUi.ProxyManager
     public partial class ProxyManagerWindow : Window
     {
         public static ProxyManagerWindow Instance { get; set; }
+        private readonly ComponentEngine componentEngine;
 
         public ProxyManagerWindow()
         {
             Instance = this;
 
             InitializeComponent();
+            InitLogging();
 
             Title = $"{Title} - {System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(4)}";
 
@@ -36,7 +41,7 @@ namespace BoundlessProxyUi.ProxyManager
             ClientComponents.ForEach(cur =>
             {
                 cur.ComponentIndex = i++;
-                cur.ManagerWindowViewModel = (ManagerWindowViewModel)DataContext;
+                cur.ManagerWindowViewModel = Data;
 
                 TextBox curComponentBlock = new TextBox
                 {
@@ -54,12 +59,38 @@ namespace BoundlessProxyUi.ProxyManager
             });
         }
 
+        public ManagerWindowViewModel Data
+        {
+            get
+            {
+                return (ManagerWindowViewModel)DataContext;
+            }
+        }
+
+        private void InitLogging()
+        {
+            var logPath = Path.Combine(Directory.GetCurrentDirectory(), "proxyui.log");
+            try
+            {
+                File.Delete(logPath);
+            }
+            catch { }
+
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .WriteTo.Console()
+                .WriteTo.Logger(lc => lc
+                    .WriteTo.File(logPath)
+                    .MinimumLevel.ControlledBy(ProxyManagerConfig.Instance.LoggingSwitch)
+                ).CreateLogger();
+        }
+
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             FadeControl(new WelcomePage());
         }
 
-        private List<ComponentBase> ClientComponents = new List<ComponentBase>
+        private readonly List<ComponentBase> ClientComponents = new List<ComponentBase>
         {
             new GameComponent(),
             new CertComponent(),
@@ -70,8 +101,6 @@ namespace BoundlessProxyUi.ProxyManager
         };
 
         public UserControl ActiveControl { get; set; } = null;
-
-        private ComponentEngine componentEngine;
 
         public void FadeControl(UserControl nextPage, bool fadeIn = true, bool right = true, EventHandler completed = null)
         {
@@ -155,9 +184,7 @@ namespace BoundlessProxyUi.ProxyManager
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            var dc = (ManagerWindowViewModel)DataContext;
-
-            if (dc.ShutdownStarted)
+            if (Data.ShutdownStarted)
             {
                 if (!shutdownCompleted)
                 {
@@ -168,19 +195,10 @@ namespace BoundlessProxyUi.ProxyManager
             }
 
             e.Cancel = true;
-            dc.ShutdownStarted = true;
+            Data.ShutdownStarted = true;
 
-            try
-            {
-                ProxyUiWindow.Instance?.Close();
-            }
-            catch { }
-
-            try
-            {
-                JsonUploadWindow.Instance?.Close();
-            }
-            catch { }
+            ProxyUiWindow.CloseInstance();
+            SettingsWindow.CloseInstance();
 
             ComponentEngine.Instance.Stop().ContinueWith(bla =>
             {
@@ -201,6 +219,34 @@ namespace BoundlessProxyUi.ProxyManager
                     });
                 }));
             });
+        }
+
+        public void SetStatusText(String status, bool log=true)
+        {
+            Data.TextStatus = status;
+            if (log)
+            {
+                Log.Information(status);
+            }
+        }
+
+        public void ShowError(String error, String title, Exception ex=null)
+        {
+            SetStatusText(error, false);
+            if (ex != null)
+            {
+                Log.Error(ex, error);
+            }
+            else
+            {
+                Log.Error(error);
+            }
+            
+            if (ProxyManagerConfig.Instance.ShowErrors)
+            {
+                MessageBox.Show(error, title, MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            return;
         }
     }
 }
