@@ -113,13 +113,13 @@ jobs:
             await github.repos.uploadReleaseAsset({
               owner, repo,
               release_id: release.data.id,
-              name: 'BoundlessProxyUi Portable',
+              name: 'BoundlessProxyUi_Portable.zip',
               data: await fs.readFile(`./BoundlessProxyUi_Portable.zip`)
             });
 
             await github.repos.uploadReleaseAsset({
               owner, repo,
               release_id: release.data.id,
-              name: 'BoundlessProxyUI Installer',
+              name: 'BoundlessProxyUI_Installer.msi',
               data: await fs.readFile(`./BoundlessProxyUI_Installer/Release/BoundlessProxyUI_Installer.msi`)
             });
