@@ -79,10 +79,8 @@ namespace BoundlessProxyUi.ProxyManager
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
                 .WriteTo.Console()
-                .WriteTo.Logger(lc => lc
-                    .WriteTo.File(logPath)
-                    .MinimumLevel.ControlledBy(ProxyManagerConfig.Instance.LoggingSwitch)
-                ).CreateLogger();
+                .WriteTo.File(logPath)
+                .CreateLogger();
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)

@@ -52,13 +52,7 @@ jobs:
           cd ${{ github.workspace }}
           "%MSBUILD_PATH%" "%SLN_PATH%" /Build release /Project BoundlessProxyUi
 
-      - name: Build BoundlessProxyUi Installer
-        shell: cmd
-        run: |
-          cd ${{ github.workspace }}
-          "%MSBUILD_PATH%" "%SLN_PATH%" /Build release /Project BoundlessProxyUi /Project BoundlessProxyUI_Installer
-
-      - name: Zip Portable
+      - name: Delete extra files
         run: |
           cd .\BoundlessProxyUi\bin\x64\Release\
           Remove-Item -Force -Recurse .\fr-CA -erroraction 'silentlycontinue'
@@ -70,17 +64,10 @@ jobs:
           Remove-Item -Force .\BoundlessProxyUi.exe.config -erroraction 'silentlycontinue'
           Remove-Item -Force -Filter *.xml .\* -erroraction 'silentlycontinue'
           Remove-Item -Force -Filter *.pdb .\* -erroraction 'silentlycontinue'
-          tar.exe -a -c -f ${{ github.workspace }}\BoundlessProxyUi_Portable.zip *
           cd ${{ github.workspace }}
 
       - name: Upload Portable Artifact
         uses: actions/upload-artifact@v2
         with:
           name: BoundlessProxyUi Portable
-          path: BoundlessProxyUi_Portable.zip
-
-      - name: Upload Installer Artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: BoundlessProxyUI Installer
-          path: BoundlessProxyUI_Installer\Release\BoundlessProxyUI_Installer.msi
+          path: ${{ github.workspace }}\BoundlessProxyUi\bin\x64\Release\

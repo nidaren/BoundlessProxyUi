@@ -38,49 +38,6 @@ namespace BoundlessProxyUi.Util
                 OnPropertyChanged(nameof(ShowErrors));
             }
         }
-
-        public bool EnableLogging
-        {
-            get
-            {
-                return Config.GetSetting(nameof(EnableLogging), false);
-            }
-            set
-            {
-                Config.SetSetting(nameof(EnableLogging), value);
-
-                if (value)
-                {
-                    LoggingSwitch.MinimumLevel = LogEventLevel.Debug;
-                }
-                else
-                {
-                    LoggingSwitch.MinimumLevel = LogEventLevel.Fatal;
-                }
-
-                OnPropertyChanged(nameof(EnableLogging));
-            }
-        }
-
-        private LoggingLevelSwitch loggingSwitch;
-        public LoggingLevelSwitch LoggingSwitch
-        {
-            get
-            {
-                if (loggingSwitch == null)
-                {
-                    if (EnableLogging)
-                    {
-                        loggingSwitch = new LoggingLevelSwitch(LogEventLevel.Debug);
-                    }
-                    else
-                    {
-                        loggingSwitch = new LoggingLevelSwitch(LogEventLevel.Fatal);
-                    }
-                }
-                return loggingSwitch;
-            }
-        }
         #endregion
 
         #region Archive Settings

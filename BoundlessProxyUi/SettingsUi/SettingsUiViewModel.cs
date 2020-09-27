@@ -19,19 +19,6 @@ namespace BoundlessProxyUi.SettingsUi
                 OnPropertyChanged(nameof(ShowErrors));
             }
         }
-
-        public bool EnableLogging
-        {
-            get
-            {
-                return ProxyManagerConfig.Instance.EnableLogging;
-            }
-            set
-            {
-                ProxyManagerConfig.Instance.EnableLogging = value;
-                OnPropertyChanged(nameof(EnableLogging));
-            }
-        }
         #endregion
 
         #region Archive Settings
@@ -155,72 +142,6 @@ namespace BoundlessProxyUi.SettingsUi
             }
         }
         #endregion
-
-
-        public bool JsonSaveApi
-        {
-            get
-            {
-                return Config.GetSetting(nameof(JsonSaveApi), false);
-            }
-            set
-            {
-                Config.SetSetting(nameof(JsonSaveApi), value);
-                OnPropertyChanged(nameof(JsonSaveApi));
-            }
-        }
-
-        public bool JsonSaveWcApi
-        {
-            get
-            {
-                return Config.GetSetting(nameof(JsonSaveWcApi), false);
-            }
-            set
-            {
-                Config.SetSetting(nameof(JsonSaveWcApi), value);
-                OnPropertyChanged(nameof(JsonSaveWcApi));
-            }
-        }
-
-        public string JsonApiKey
-        {
-            get
-            {
-                return Config.GetSetting(nameof(JsonApiKey), "");
-            }
-            set
-            {
-                Config.SetSetting(nameof(JsonApiKey), value);
-                OnPropertyChanged(nameof(JsonApiKey));
-            }
-        }
-
-        public string BaseFolder
-        {
-            get
-            {
-                return Config.GetSetting(nameof(BaseFolder), Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
-            }
-            set
-            {
-                Config.SetSetting(nameof(BaseFolder), value);
-                OnPropertyChanged(nameof(BaseFolder));
-            }
-        }
-
-        public string ApiBaseUrl
-        {
-            get
-            {
-                return Config.GetSetting(nameof(ApiBaseUrl), "https://api.boundlexx.app/api");
-            }
-            set
-            {
-                Config.SetSetting(nameof(ApiBaseUrl), value);
-                OnPropertyChanged(nameof(ApiBaseUrl));
-            }
-        }
 
         /// <summary>
         /// Occurs when a property value changes

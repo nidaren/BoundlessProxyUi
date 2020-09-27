@@ -339,8 +339,9 @@ namespace BoundlessProxyUi.Mitm
             {
                 destination = new BufferedStream(destination);
             }
-            catch
+            catch (Exception ex)
             {
+                Log.Error(ex, "Error creating buffered stream");
                 return;
             }
 
@@ -358,8 +359,9 @@ namespace BoundlessProxyUi.Mitm
                         {
                             destination.Flush();
                         }
-                        catch
+                        catch (Exception ex)
                         {
+                            Log.Error(ex, "Error Flushing stream");
                             Kill(direction == CommPacketDirection.ServerToClient);
                         }
 
@@ -394,8 +396,9 @@ namespace BoundlessProxyUi.Mitm
                                 {
                                     bytesRead = source.Read(buffer, offset, count - offset);
                                 }
-                                catch
+                                catch (Exception ex)
                                 {
+                                    Log.Error(ex, "Error Reading stream");
                                     Kill(direction == CommPacketDirection.ClientToServer);
                                 }
 
@@ -489,8 +492,9 @@ namespace BoundlessProxyUi.Mitm
                                     {
                                         bytesRead = source.Read(buffer, 0, Math.Min(buffer.Length, (int)Math.Min(int.MaxValue, curLength)));
                                     }
-                                    catch
+                                    catch (Exception ex)
                                     {
+                                        Log.Error(ex, "Error reading bytes");
                                         Kill(direction == CommPacketDirection.ClientToServer);
                                     }
 
@@ -559,7 +563,9 @@ namespace BoundlessProxyUi.Mitm
                             {
                                 frame = new WsFrame(buffer, 2, source);
                             }
-                            catch { }
+                            catch (Exception ex) {
+                                Log.Error(ex, "Error creating WsFrame");
+                            }
 
                             var worldData = frame?.Messages.FirstOrDefault(cur => cur.ApiId.HasValue && cur.ApiId.Value == 0);
 
@@ -608,8 +614,9 @@ namespace BoundlessProxyUi.Mitm
                             {
                                 frame?.Send(destination);
                             }
-                            catch
+                            catch (Exception ex)
                             {
+                                Log.Error(ex, "Error sending frame");
                                 Kill(direction == CommPacketDirection.ServerToClient);
                             }
 
@@ -638,7 +645,9 @@ namespace BoundlessProxyUi.Mitm
                             {
                                 websocketDataQueue[direction].Add(frame);
                             }
-                            catch { }
+                            catch (Exception ex) {
+                                Log.Error(ex, "Error adding frame to queue");
+                            }
 
                             Application.Current.Dispatcher.Invoke(() =>
                             {
@@ -745,6 +754,7 @@ namespace BoundlessProxyUi.Mitm
                         }
                     }
 
+                    Log.Information("Killing connection");
                     Kill(direction == CommPacketDirection.ClientToServer);
                 }
                 catch (Exception ex)

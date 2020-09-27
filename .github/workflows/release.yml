@@ -56,7 +56,7 @@ jobs:
           cd ${{ github.workspace }}
           "%MSBUILD_PATH%" "%SLN_PATH%" /Build release /Project BoundlessProxyUi /Project BoundlessProxyUI_Installer
 
-      - name: Zip Portable
+      - name: Delete extra files
         run: |
           cd .\BoundlessProxyUi\bin\x64\Release\
           Remove-Item -Force -Recurse .\fr-CA -erroraction 'silentlycontinue'
@@ -68,20 +68,25 @@ jobs:
           Remove-Item -Force .\BoundlessProxyUi.exe.config -erroraction 'silentlycontinue'
           Remove-Item -Force -Filter *.xml .\* -erroraction 'silentlycontinue'
           Remove-Item -Force -Filter *.pdb .\* -erroraction 'silentlycontinue'
+          cd ${{ github.workspace }}
+
+      - name: Zip Portable
+        run: |
+          cd .\BoundlessProxyUi\bin\x64\Release\
           tar.exe -a -c -f ${{ github.workspace }}\BoundlessProxyUi_Portable.zip *
           cd ${{ github.workspace }}
 
       - name: Upload Portable Artifact
         uses: actions/upload-artifact@v2
         with:
-          name: BoundlessProxyUi_Portable
-          path: BoundlessProxyUi_Portable.zip
+          name: BoundlessProxyUi Portable
+          path: ${{ github.workspace }}\BoundlessProxyUi\bin\x64\Release\
 
       - name: Upload Installer Artifact
         uses: actions/upload-artifact@v2
         with:
           name: BoundlessProxyUI Installer
-          path: BoundlessProxyUI_Installer\Release\BoundlessProxyUI_Installer.msi
+          path: ${{ github.workspace }}\BoundlessProxyUI_Installer\Release\BoundlessProxyUI_Installer.msi
 
       - name: Create Release
         uses: actions/github-script@v2
@@ -109,12 +114,12 @@ jobs:
               owner, repo,
               release_id: release.data.id,
               name: 'BoundlessProxyUi Portable',
-              data: await fs.readFile(`.\BoundlessProxyUi_Portable.zip`)
+              data: await fs.readFile(`./BoundlessProxyUi_Portable.zip`)
             });
 
             await github.repos.uploadReleaseAsset({
               owner, repo,
               release_id: release.data.id,
               name: 'BoundlessProxyUI Installer',
-              data: await fs.readFile(`.\BoundlessProxyUI_Installer\Release\BoundlessProxyUI_Installer.msi`)
+              data: await fs.readFile(`./BoundlessProxyUI_Installer/Release/BoundlessProxyUI_Installer.msi`)
             });
