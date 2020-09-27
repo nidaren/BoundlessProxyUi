@@ -278,7 +278,7 @@ namespace BoundlessProxyUi.WsData
             this.m_mask = null;
 
             // Allocate space for the largest header
-            byte[] header = new byte[10] { m_wsHeader, mask == null ? (byte)0 : (byte)0b10000000, 0, 0, 0, 0, 0, 0, 0, 0 };
+            byte[] header = new byte[14] { m_wsHeader, mask == null ? (byte)0 : (byte)0b10000000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
             // Track the header length, start with smallest and work our way up
             int headerLength = 2;
