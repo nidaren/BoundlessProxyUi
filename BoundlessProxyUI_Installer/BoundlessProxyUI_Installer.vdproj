@@ -82,12 +82,6 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_8E37805B2561458B34AE085B99A65053"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_F2FD84F44F274022A50FD020AB8ECD8B"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -133,6 +127,12 @@
         "OwnerKey" = "8:_102A6F24A5A627751FE808E3F6E48764"
         "MsmSig" = "8:_UNDEFINED"
         }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_8E37805B2561458B34AE085B99A65053"
+        "MsmSig" = "8:_UNDEFINED"
+        }
     }
     "Configurations"
     {
@@ -151,6 +151,14 @@
         "PrivateKeyFile" = "8:"
         "TimeStampServer" = "8:"
         "InstallerBootstrapper" = "3:2"
+            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
+            {
+            "Enabled" = "11:TRUE"
+            "PromptEnabled" = "11:TRUE"
+            "PrerequisitesLocation" = "2:1"
+            "Url" = "8:"
+            "ComponentsUrl" = "8:"
+            }
         }
         "Release"
         {
@@ -516,15 +524,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:BoundlessProxyUI"
-        "ProductCode" = "8:{A26CCA30-CAFF-4595-BF79-B0A0EA599E88}"
-        "PackageCode" = "8:{A881DA15-70BF-4A8E-87CE-41AECCBBA08B}"
+        "ProductCode" = "8:{28EE234F-6D1F-4AC1-8235-1BC0C765E95A}"
+        "PackageCode" = "8:{5ECC7939-D6E4-4CF9-8245-9DE9C88EE8AB}"
         "UpgradeCode" = "8:{07CF46B1-49A5-4BE7-8B81-6DC686D0D922}"
         "AspNetVersion" = "8:2.0.50727.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:1.4.2"
+        "ProductVersion" = "8:1.4.3"
         "Manufacturer" = "8:BoundlessProxyUI"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
