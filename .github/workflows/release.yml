@@ -6,7 +6,7 @@ name: BoundlexxProxyUI Create Release
 # events but only for the master branch
 on:
   push:
-    tags: [ "1.*" ]
+    tags: ["1.*"]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -15,6 +15,9 @@ jobs:
     name: Build
     # The type of runner that the job will run on
     runs-on: windows-latest
+    env:
+      MSBUILD_PATH: C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\IDE\devenv.com
+      SLN_PATH: BoundlessProxyUi.sln
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -27,17 +30,44 @@ jobs:
       - name: Setup NuGet
         uses: NuGet/setup-nuget@v1.0.2
 
-      - name: Restore NuGet Packages
-        run: nuget restore BoundlessProxyUi.sln
+      - name: Disable Out of Proc Build
+        shell: cmd
+        run: DisableOutOfProcBuild.exe
+        working-directory: C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\IDE\CommonExtensions\Microsoft\VSI\DisableOutOfProcBuild
 
-      - name: Build and Publish BoundlexxProxyUi
-        run: msbuild BoundlessProxyUi.sln /p:Configuration=Release /t:Publish /p:Platform=x64 /p:PublishProfile=x64Profile /p:OutputPath=bin\x64\Release
+      - name: Devenv Update Config
+        shell: cmd
+        run: |
+          "%MSBUILD_PATH%" /updateconfiguration
+
+      - name: Restore NuGet Packages
+        shell: cmd
+        run: nuget restore "%SLN_PATH%"
+
+      - name: Build BoundlessProxyUi Main
+        shell: cmd
+        run: |
+          cd ${{ github.workspace }}
+          "%MSBUILD_PATH%" "%SLN_PATH%" /Build release /Project BoundlessProxyUi
+
+      - name: Build BoundlessProxyUi Installer
+        shell: cmd
+        run: |
+          cd ${{ github.workspace }}
+          "%MSBUILD_PATH%" "%SLN_PATH%" /Build release /Project BoundlessProxyUi /Project BoundlessProxyUI_Installer
 
       - name: Zip Portable
         run: |
           cd .\BoundlessProxyUi\bin\x64\Release\
-          Remove-Item -Force .\BoundlessProxyUi.application
-          Remove-Item -Force .\BoundlessProxyUi.pdb
+          Remove-Item -Force -Recurse .\fr-CA -erroraction 'silentlycontinue'
+          Remove-Item -Force -Recurse .\pl-PL -erroraction 'silentlycontinue'
+          Remove-Item -Force -Recurse .\pt-BR -erroraction 'silentlycontinue'
+          Remove-Item -Force -Recurse .\ru-RU -erroraction 'silentlycontinue'
+          Remove-Item -Force -Recurse .\zh-CN -erroraction 'silentlycontinue'
+          Remove-Item -Force .\BoundlessProxyUi.application -erroraction 'silentlycontinue'
+          Remove-Item -Force .\BoundlessProxyUi.exe.config -erroraction 'silentlycontinue'
+          Remove-Item -Force -Filter *.xml .\* -erroraction 'silentlycontinue'
+          Remove-Item -Force -Filter *.pdb .\* -erroraction 'silentlycontinue'
           tar.exe -a -c -f ${{ github.workspace }}\BoundlessProxyUi_Portable.zip *
           cd ${{ github.workspace }}
 
@@ -47,17 +77,11 @@ jobs:
           name: BoundlessProxyUi_Portable
           path: BoundlessProxyUi_Portable.zip
 
-      - name: Zip Installer
-        run: |
-          cd .\BoundlessProxyUi\bin\x64\Releaseapp.publish\
-          tar.exe -a -c -f ${{ github.workspace }}\BoundlessProxyUi_Installer.zip *
-          cd ${{ github.workspace }}
-
       - name: Upload Installer Artifact
         uses: actions/upload-artifact@v2
         with:
-          name: BoundlessProxyUi_Installer
-          path: BoundlessProxyUi_Installer.zip
+          name: BoundlessProxyUI Installer
+          path: BoundlessProxyUI_Installer\Release\BoundlessProxyUI_Installer.msi
 
       - name: Create Release
         uses: actions/github-script@v2
@@ -84,13 +108,13 @@ jobs:
             await github.repos.uploadReleaseAsset({
               owner, repo,
               release_id: release.data.id,
-              name: 'BoundlessProxyUi_Portable.zip',
-              data: await fs.readFile(`./BoundlessProxyUi_Portable.zip`)
+              name: 'BoundlessProxyUi Portable',
+              data: await fs.readFile(`.\BoundlessProxyUi_Portable.zip`)
             });
 
             await github.repos.uploadReleaseAsset({
               owner, repo,
               release_id: release.data.id,
-              name: 'BoundlessProxyUi_Installer.zip',
-              data: await fs.readFile(`./BoundlessProxyUi_Installer.zip`)
+              name: 'BoundlessProxyUI Installer',
+              data: await fs.readFile(`.\BoundlessProxyUI_Installer\Release\BoundlessProxyUI_Installer.msi`)
             });
