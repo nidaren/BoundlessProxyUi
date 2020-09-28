@@ -56,7 +56,6 @@ namespace BoundlessProxyUi.Util
                         fileMap.ExeConfigFilename = Path.Combine(BaseDirectory, "proxyui.config");
                         configuration = ConfigurationManager.OpenMappedExeConfiguration(fileMap, ConfigurationUserLevel.None);
                     }
-                    MessageBox.Show(configuration.FilePath, "File");
                 }
 
                 return configuration;
