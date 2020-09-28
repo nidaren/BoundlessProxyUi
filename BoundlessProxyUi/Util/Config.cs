@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.IO;
+using System.Reflection;
+using System.Windows;
+using System.Windows.Media.Converters;
 
 namespace BoundlessProxyUi.Util
 {
@@ -9,11 +13,55 @@ namespace BoundlessProxyUi.Util
     /// </summary>
     static class Config
     {
+        public static bool IsPortable
+        {
+            get
+            {
+                return !File.Exists(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "installed_flag"));
+            }
+
+        }
+
+        public static string BaseDirectory
+        {
+            get {
+                if (IsPortable) {
+                    return Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                }
+
+                var baseDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BoundlessProxyUI");
+                Directory.CreateDirectory(baseDir);
+                return baseDir;
+            }
+        }
+
+
         /// <summary>
         /// Cache of the configuration items
         /// </summary>
         private static readonly Dictionary<string, string> s_configCache = new Dictionary<string, string>();
 
+        private static Configuration configuration;
+        private static Configuration Configuration {
+            get
+            {
+                if (configuration == null)
+                {
+                    if (IsPortable)
+                    {
+                        configuration = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+                    }
+                    else {
+                        ExeConfigurationFileMap fileMap = new ExeConfigurationFileMap();
+                        fileMap.ExeConfigFilename = Path.Combine(BaseDirectory, "proxyui.config");
+                        configuration = ConfigurationManager.OpenMappedExeConfiguration(fileMap, ConfigurationUserLevel.None);
+                    }
+                    MessageBox.Show(configuration.FilePath, "File");
+                }
+
+                return configuration;
+            }
+        }
         /// <summary>
         /// Saves a setting in the app.config
         /// </summary>
@@ -27,7 +75,8 @@ namespace BoundlessProxyUi.Util
             if (!s_configCache.TryGetValue(key, out var result))
             {
                 // If not cached, read it from the app.config file. If not present, use the default
-                result = ConfigurationManager.AppSettings[key] ?? defaultValue.ToString();
+                var setting = Configuration.AppSettings.Settings[key];
+                result = setting == null ? defaultValue.ToString() : setting.Value;
 
                 // Add the value to the cache for quick access later
                 s_configCache.Add(key, result);
@@ -58,17 +107,17 @@ namespace BoundlessProxyUi.Util
             }
 
             // Add setting if not preset
-            Configuration configuration = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-            if (configuration.AppSettings.Settings[key] == null)
+            
+            if (Configuration.AppSettings.Settings[key] == null)
             {
-                configuration.AppSettings.Settings.Add(new KeyValueConfigurationElement(key, null));
+                Configuration.AppSettings.Settings.Add(new KeyValueConfigurationElement(key, null));
             }
 
             // Update the value of the setting
-            configuration.AppSettings.Settings[key].Value = valueString;
+            Configuration.AppSettings.Settings[key].Value = valueString;
 
             // Write settings to file
-            configuration.Save(ConfigurationSaveMode.Full, true);
+            Configuration.Save(ConfigurationSaveMode.Full, true);
             ConfigurationManager.RefreshSection("appSettings");
 
             // Save the value in the cache for quick access later

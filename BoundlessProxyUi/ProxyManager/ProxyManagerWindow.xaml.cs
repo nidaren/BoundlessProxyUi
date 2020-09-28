@@ -69,7 +69,7 @@ namespace BoundlessProxyUi.ProxyManager
 
         private void InitLogging()
         {
-            var logPath = Path.Combine(Directory.GetCurrentDirectory(), "proxyui.log");
+            var logPath = Path.Combine(ProxyManagerConfig.Instance.BaseDirectory, "proxyui.log");
             try
             {
                 File.Delete(logPath);

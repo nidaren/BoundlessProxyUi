@@ -38,14 +38,30 @@ namespace BoundlessProxyUi.Util
                 OnPropertyChanged(nameof(ShowErrors));
             }
         }
-        #endregion
 
-        #region Archive Settings
-        public String ExportDirectory
+        public bool IsPortable
         {
             get
             {
-                String defaultPath = Path.Combine(Directory.GetCurrentDirectory(), "export");
+                return Config.IsPortable;
+            }
+        }
+
+        public string BaseDirectory
+        {
+            get
+            {
+                return Config.BaseDirectory;
+            }
+        }
+        #endregion
+
+        #region Archive Settings
+        public string ExportDirectory
+        {
+            get
+            {
+                string defaultPath = Path.Combine(BaseDirectory, "export");
                 Directory.CreateDirectory(defaultPath);
                 return Config.GetSetting(nameof(ExportDirectory), defaultPath);
             }
