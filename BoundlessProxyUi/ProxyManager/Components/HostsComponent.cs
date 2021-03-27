@@ -10,7 +10,7 @@ using System.Net.Http;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+using BoundlessProxyUi.Util;
 
 namespace BoundlessProxyUi.ProxyManager.Components
 {
@@ -83,7 +83,7 @@ namespace BoundlessProxyUi.ProxyManager.Components
 
                 UpdateProcessingText($"Getting planet server names from discovery server.");
 
-                var curDsIp = Dns.GetHostAddresses(Constants.DiscoveryServer).First(curAddress => curAddress.AddressFamily == AddressFamily.InterNetwork).ToString();
+                var curDsIp = Dns.GetHostAddresses(ProxyManagerConfig.Instance.BoundlessDS).First(curAddress => curAddress.AddressFamily == AddressFamily.InterNetwork).ToString();
 
                 if (curDsIp == "127.0.0.1")
                 {
@@ -96,7 +96,7 @@ namespace BoundlessProxyUi.ProxyManager.Components
 
                 try
                 {
-                    serverListJson = JArray.Parse(client.GetAsync($"https://{Constants.DiscoveryServer}:8902/list-gameservers").Result.Content.ReadAsStringAsync().Result);
+                    serverListJson = JArray.Parse(client.GetAsync($"https://{ProxyManagerConfig.Instance.BoundlessDS}:8902/list-gameservers").Result.Content.ReadAsStringAsync().Result);
                 }
                 catch (Exception ex)
                 {
@@ -120,30 +120,30 @@ namespace BoundlessProxyUi.ProxyManager.Components
                     IPAddress dsIp;
 
                     // Account server
-                    UpdateProcessingText($"Performing lookup: {Constants.AccountServer}.");
+                    UpdateProcessingText($"Performing lookup: {ProxyManagerConfig.Instance.BoundlessAS}.");
 
-                    hostsFileContents.Add($"127.0.0.1 {Constants.AccountServer}");
-                    dsIp = Dns.GetHostAddresses(Constants.AccountServer).First(curAddress => curAddress.AddressFamily == AddressFamily.InterNetwork);
+                    hostsFileContents.Add($"127.0.0.1 {ProxyManagerConfig.Instance.BoundlessAS}");
+                    dsIp = Dns.GetHostAddresses(ProxyManagerConfig.Instance.BoundlessAS).First(curAddress => curAddress.AddressFamily == AddressFamily.InterNetwork);
 
                     if (dsIp.ToString() == "127.0.0.1")
                     {
                         throw new Exception("Hosts file not clear!");
                     }
 
-                    ComponentEngine.Instance.ServerList.Add(new ServerList { Hostname = Constants.AccountServer, Ip = dsIp.ToString() });
+                    ComponentEngine.Instance.ServerList.Add(new ServerList { Hostname = ProxyManagerConfig.Instance.BoundlessAS, Ip = dsIp.ToString() });
 
                     // Discovery server
-                    UpdateProcessingText($"Performing lookup: {Constants.DiscoveryServer}.");
+                    UpdateProcessingText($"Performing lookup: {ProxyManagerConfig.Instance.BoundlessDS}.");
 
-                    hostsFileContents.Add($"127.0.0.1 {Constants.DiscoveryServer}");
-                    dsIp = Dns.GetHostAddresses(Constants.DiscoveryServer).First(curAddress => curAddress.AddressFamily == AddressFamily.InterNetwork);
+                    hostsFileContents.Add($"127.0.0.1 {ProxyManagerConfig.Instance.BoundlessDS}");
+                    dsIp = Dns.GetHostAddresses(ProxyManagerConfig.Instance.BoundlessDS).First(curAddress => curAddress.AddressFamily == AddressFamily.InterNetwork);
 
                     if (dsIp.ToString() == "127.0.0.1")
                     {
                         throw new Exception("Hosts file not clear!");
                     }
 
-                    ComponentEngine.Instance.ServerList.Add(new ServerList { Hostname = Constants.DiscoveryServer, Ip = dsIp.ToString() });
+                    ComponentEngine.Instance.ServerList.Add(new ServerList { Hostname = ProxyManagerConfig.Instance.BoundlessDS, Ip = dsIp.ToString() });
 
                     // Planet servers
                     serverListJson.Select(cur => cur["addr"].Value<string>()).Distinct().ToList().ForEach(cur =>
@@ -162,10 +162,10 @@ namespace BoundlessProxyUi.ProxyManager.Components
                     });
 
                     string[] hosts = new string[]{
-                            "gs-live-usw{0}.playboundless.com",
-                            "gs-live-use{0}.playboundless.com",
-                            "gs-live-euc{0}.playboundless.com",
-                            "gs-live-aus{0}.playboundless.com",
+                            $"{ProxyManagerConfig.Instance.BoundlessServerPrefix}-usw{{0}}.playboundless.com",
+                            $"{ProxyManagerConfig.Instance.BoundlessServerPrefix}-live-use{{0}}.playboundless.com",
+                            $"{ProxyManagerConfig.Instance.BoundlessServerPrefix}-live-euc{{0}}.playboundless.com",
+                            $"{ProxyManagerConfig.Instance.BoundlessServerPrefix}-live-aus{{0}}.playboundless.com",
                         };
 
                     foreach (string curHostPattern in hosts)

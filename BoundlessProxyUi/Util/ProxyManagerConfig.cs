@@ -179,6 +179,19 @@ namespace BoundlessProxyUi.Util
                 OnPropertyChanged(nameof(BoundlessAS));
             }
         }
+
+        public String BoundlessServerPrefix
+        {
+            get
+            {
+                return Config.GetSetting(nameof(BoundlessServerPrefix), Constants.ServerPrefix);
+            }
+            set
+            {
+                Config.SetSetting(nameof(BoundlessServerPrefix), value);
+                OnPropertyChanged(nameof(BoundlessServerPrefix));
+            }
+        }
         #endregion
 
         #region ProxyUI Settings

@@ -30,6 +30,7 @@
             <RowDefinition Height="auto" />
             <RowDefinition Height="auto" />
             <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
         </Grid.RowDefinitions>
 
         <Label Margin="5,5,5,4" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" FontWeight="Bold">General Settings</Label>
@@ -73,6 +74,9 @@
 
         <TextBlock Margin="5,10,5,3" Grid.Row="14" Grid.Column="0" TextAlignment="Right" Grid.ColumnSpan="2" Text="Account Server:"/>
         <TextBox x:Name="txtAS" Margin="5,10,5,3" HorizontalAlignment="Left" Grid.Row="14" Grid.Column="2" Grid.ColumnSpan="2" Width="200" Text="{Binding BoundlessAS}" />
+
+        <TextBlock Margin="5,10,5,3" Grid.Row="16" Grid.Column="0" TextAlignment="Right" Grid.ColumnSpan="2" Text="Server Prefix:"/>
+        <TextBox x:Name="txtServerPrefix" Margin="5,10,5,3" HorizontalAlignment="Left" Grid.Row="17" Grid.Column="2" Grid.ColumnSpan="2" Width="200" Text="{Binding BoundlessServerPrefix}" />
 
     </Grid>
 </Window>

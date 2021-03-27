@@ -21,5 +21,10 @@ namespace BoundlessProxyUi.Util
         /// Domain for Boundlexx
         /// </summary>
         public const string BoundlexxApi = "api.boundlexx.app";
+
+        /// <summary>
+        /// Server Prefix for Game Servers
+        /// </summary>
+        public const string ServerPrefix = "gs-live";
     }
 }

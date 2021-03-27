@@ -91,8 +91,8 @@ namespace BoundlessProxyUi.Mitm
 
         public static async Task InitPlanets(Dictionary<string, string> hostLookup)
         {
-            string blah = $"{Config.GetSetting("ApiBaseUrl", "https://api.boundlexx.app/api")}/v1/worlds/?limit=10000";
-
+            string blah = $"https://{ProxyManagerConfig.Instance.BoundlexxApiBase}/api/v2/worlds/?limit=10000&active=True&is_locked=False";
+            
             HttpClient client = new HttpClient();
             var result = await client.GetAsync(blah);
             if (!result.IsSuccessStatusCode)
