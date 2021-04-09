@@ -113,7 +113,15 @@ namespace BoundlessProxyUi.Mitm
                 string addr = something["address"].Value<string>();
                 string ipAddr = hostLookup[addr];
 
-                planetLookup.Add(planetId, new KeyValuePair<string, int>(planetName, planetNum));
+                try
+                {
+                    planetLookup.Add(planetId, new KeyValuePair<string, int>(planetName, planetNum));
+                }
+                catch (System.ArgumentException)
+                {
+                    System.Diagnostics.Debug.WriteLine("Duplicate planet: {1}", planetId);
+                }
+                
 
                 UdpProxy proxy = null;
 

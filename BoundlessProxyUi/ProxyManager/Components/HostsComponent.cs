@@ -163,9 +163,9 @@ namespace BoundlessProxyUi.ProxyManager.Components
 
                     string[] hosts = new string[]{
                             $"{ProxyManagerConfig.Instance.BoundlessServerPrefix}-usw{{0}}.playboundless.com",
-                            $"{ProxyManagerConfig.Instance.BoundlessServerPrefix}-live-use{{0}}.playboundless.com",
-                            $"{ProxyManagerConfig.Instance.BoundlessServerPrefix}-live-euc{{0}}.playboundless.com",
-                            $"{ProxyManagerConfig.Instance.BoundlessServerPrefix}-live-aus{{0}}.playboundless.com",
+                            $"{ProxyManagerConfig.Instance.BoundlessServerPrefix}-use{{0}}.playboundless.com",
+                            $"{ProxyManagerConfig.Instance.BoundlessServerPrefix}-euc{{0}}.playboundless.com",
+                            $"{ProxyManagerConfig.Instance.BoundlessServerPrefix}-aus{{0}}.playboundless.com",
                         };
 
                     foreach (string curHostPattern in hosts)
