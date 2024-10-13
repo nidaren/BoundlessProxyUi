@@ -1,5 +1,7 @@
 # BoundlessProxyUi
 
+IMPORTANT: Currently only portable version of the application is updated and available.
+
 ## Usage
 
 Usage video here: https://youtu.be/13sH7BrSl5o
