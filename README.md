@@ -1,6 +1,6 @@
 # BoundlessProxyUi
 
-IMPORTANT: Currently only portable version of the application is updated and available.
+<ins>**IMPORTANT**</ins>: Currently only **portable** version of the application is updated and available.
 
 ## Usage
 
