@@ -1,5 +1,4 @@
-﻿using BoundlessProxyUi.ProxyUi;
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
@@ -17,8 +16,8 @@ namespace BoundlessProxyUi.ProxyUi
         UnsignedInt64,
         SignedInt16,
         UnsignedInt16,
-        SignedByte,
-        UnsignedByte,
+        //SignedByte,
+        //UnsignedByte,
         Float,
         Double,
         Utf8String,
@@ -86,12 +85,12 @@ namespace BoundlessProxyUi.ProxyUi
                         case UserSearchType.UnsignedInt16:
                             m_searchBytes = BitConverter.GetBytes(Convert.ToUInt16(UserValue));
                             break;
-                        case UserSearchType.SignedByte:
-                            m_searchBytes = BitConverter.GetBytes(Convert.ToSByte(UserValue));
-                            break;
-                        case UserSearchType.UnsignedByte:
-                            m_searchBytes = BitConverter.GetBytes(Convert.ToByte(UserValue));
-                            break;
+                        //case UserSearchType.SignedByte:
+                        //    m_searchBytes = BitConverter.GetBytes(Convert.ToSByte(UserValue));
+                        //    break;
+                        //case UserSearchType.UnsignedByte:
+                        //    m_searchBytes = BitConverter.GetBytes(Convert.ToByte(UserValue));
+                        //    break;
                         case UserSearchType.Float:
                             m_searchBytes = BitConverter.GetBytes((float)Convert.ToDouble(UserValue));
                             break;

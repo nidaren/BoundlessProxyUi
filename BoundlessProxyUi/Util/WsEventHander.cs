@@ -9,7 +9,6 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Windows;
-using System.Windows.Threading;
 
 namespace BoundlessProxyUi.Util
 {
@@ -75,19 +74,19 @@ namespace BoundlessProxyUi.Util
 
         private async void UploadJson(string content, string path, string name, string type, bool slientFail = false)
         {
-            var client = new HttpClient();
-            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Token", ProxyManagerConfig.Instance.BoundlexxApiKey);
+            Network.NidHttpClient.DefaultRequestHeaders.Authorization = new("Token", ProxyManagerConfig.Instance.BoundlexxApiKey);
 
             HttpResponseMessage response = null;
 
             try
             {
-                response = await client.PostAsync($"https://{ProxyManagerConfig.Instance.BoundlexxApiBase}/api{path}", new StringContent(content, Encoding.UTF8, "application/json"));
+                response = await Network.NidHttpClient.PostAsync($"https://{ProxyManagerConfig.Instance.BoundlexxApiBase}/api{path}", new StringContent(content, Encoding.UTF8, "application/json"));
             }
             catch (HttpRequestException ex)
             {
                 var message = $"Failed to upload {type} JSON for {name}: {ex.InnerException.Message}";
-                if (!slientFail) {
+                if (!slientFail)
+                {
                     Application.Current.Dispatcher.Invoke(() =>
                     {
                         ProxyManagerWindow.Instance.ShowError(message, "Error uploading JSON", ex);
@@ -187,7 +186,8 @@ namespace BoundlessProxyUi.Util
                     return;
                 }
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 Log.Error(ex, "Error decoding World Control message");
                 return;
             }
