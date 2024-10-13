@@ -1,5 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
-using BoundlessProxyUi.Util;
+﻿using BoundlessProxyUi.Util;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -10,7 +10,6 @@ using System.Net.Http;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
-using BoundlessProxyUi.Util;
 
 namespace BoundlessProxyUi.ProxyManager.Components
 {
