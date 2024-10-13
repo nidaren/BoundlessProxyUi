@@ -1,18 +1,17 @@
-﻿using BoundlessProxyUi.SettingsUi;
-using BoundlessProxyUi.ProxyManager.Components;
+﻿using BoundlessProxyUi.ProxyManager.Components;
 using BoundlessProxyUi.ProxyUi;
+using BoundlessProxyUi.SettingsUi;
 using BoundlessProxyUi.Util;
+using Serilog;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-
 using System.Windows.Media.Animation;
-using Serilog;
-using System.IO;
 
 namespace BoundlessProxyUi.ProxyManager
 {
@@ -219,7 +218,7 @@ namespace BoundlessProxyUi.ProxyManager
             });
         }
 
-        public void SetStatusText(String status, bool log=true)
+        public void SetStatusText(String status, bool log = true)
         {
             Data.TextStatus = status;
             if (log)
@@ -228,7 +227,7 @@ namespace BoundlessProxyUi.ProxyManager
             }
         }
 
-        public void ShowError(String error, String title, Exception ex=null)
+        public void ShowError(String error, String title, Exception ex = null)
         {
             SetStatusText(error, false);
             if (ex != null)
@@ -239,7 +238,7 @@ namespace BoundlessProxyUi.ProxyManager
             {
                 Log.Error(error);
             }
-            
+
             if (ProxyManagerConfig.Instance.ShowErrors)
             {
                 MessageBox.Show(error, title, MessageBoxButton.OK, MessageBoxImage.Error);

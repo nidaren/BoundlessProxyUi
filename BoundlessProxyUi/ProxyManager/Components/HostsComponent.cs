@@ -6,7 +6,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -90,12 +89,11 @@ namespace BoundlessProxyUi.ProxyManager.Components
                 }
 
                 // Run IP addresses
-                HttpClient client = new HttpClient();
                 JArray serverListJson;
 
                 try
                 {
-                    serverListJson = JArray.Parse(client.GetAsync($"https://{ProxyManagerConfig.Instance.BoundlessDS}:8902/list-gameservers").Result.Content.ReadAsStringAsync().Result);
+                    serverListJson = JArray.Parse(Network.NidHttpClient.GetAsync($"https://{ProxyManagerConfig.Instance.BoundlessDS}:8902/list-gameservers").Result.Content.ReadAsStringAsync().Result);
                 }
                 catch (Exception ex)
                 {

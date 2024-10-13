@@ -10,7 +10,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -93,15 +92,15 @@ namespace BoundlessProxyUi.Mitm
         {
             string blah = $"https://{ProxyManagerConfig.Instance.BoundlexxApiBase}/api/v2/worlds/?limit=10000&active=True&is_locked=False";
 
-            HttpClient client = new HttpClient();
-            client.DefaultRequestHeaders.Add("User-Agent", "Other");
-            var result = await client.GetAsync(blah);
+            var result = await Network.NidHttpClient.GetAsync(blah);
             if (!result.IsSuccessStatusCode)
             {
                 throw new Exception("Error getting planets from server");
             }
 
             var serverList = JObject.Parse(await result.Content.ReadAsStringAsync());
+
+            var auth = Network.NidHttpClient.DefaultRequestHeaders.Authorization;
 
             int curPort = 1000;
 
