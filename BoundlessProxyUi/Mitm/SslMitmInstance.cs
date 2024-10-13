@@ -1,5 +1,10 @@
 ﻿using BoundlessProxyUi.ProxyManager;
+using BoundlessProxyUi.ProxyManager.Components;
+using BoundlessProxyUi.ProxyUi;
+using BoundlessProxyUi.Util;
+using BoundlessProxyUi.WsData;
 using Newtonsoft.Json.Linq;
+using Serilog;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -11,17 +16,12 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using BoundlessProxyUi.WsData;
-using BoundlessProxyUi.ProxyUi;
-using BoundlessProxyUi.Util;
-using BoundlessProxyUi.ProxyManager.Components;
-using Serilog;
 
 namespace BoundlessProxyUi.Mitm
 {
     public class SslMitmInstance
     {
-        private static readonly Dictionary<string, KeyValuePair<string, int>> planetLookup = new Dictionary<string, KeyValuePair<string, int>>();
+        private static readonly Dictionary<int, KeyValuePair<string, int>> planetLookup = new Dictionary<int, KeyValuePair<string, int>>();
 
         static SslMitmInstance()
         {
@@ -32,7 +32,7 @@ namespace BoundlessProxyUi.Mitm
 
         public static string PlayerName = null;
 
-        public static Dictionary<string, UdpProxy> planetPorts = new Dictionary<string, UdpProxy>();
+        public static Dictionary<int, UdpProxy> planetPorts = new Dictionary<int, UdpProxy>();
 
         public static object playerPlanetLock = new object();
         public static string playerPlanet = string.Empty;
@@ -47,10 +47,10 @@ namespace BoundlessProxyUi.Mitm
             { CommPacketDirection.ServerToClient, new BlockingCollection<WsFrame>() },
         };
 
-        private static readonly Dictionary<CommPacketDirection, ConcurrentDictionary<string, BlockingCollection<WsMessage>>> OutgoingQueueDirection = new Dictionary<CommPacketDirection, ConcurrentDictionary<string, BlockingCollection<WsMessage>>>
+        private static readonly Dictionary<CommPacketDirection, ConcurrentDictionary<int, BlockingCollection<WsMessage>>> OutgoingQueueDirection = new Dictionary<CommPacketDirection, ConcurrentDictionary<int, BlockingCollection<WsMessage>>>
         {
-            { CommPacketDirection.ClientToServer, new ConcurrentDictionary<string, BlockingCollection<WsMessage>>() },
-            { CommPacketDirection.ServerToClient, new ConcurrentDictionary<string, BlockingCollection<WsMessage>>() },
+            { CommPacketDirection.ClientToServer, new ConcurrentDictionary<int, BlockingCollection<WsMessage>>() },
+            { CommPacketDirection.ServerToClient, new ConcurrentDictionary<int, BlockingCollection<WsMessage>>() },
         };
 
         public bool ReplaceIpaddr { get; set; } = false;
@@ -92,8 +92,9 @@ namespace BoundlessProxyUi.Mitm
         public static async Task InitPlanets(Dictionary<string, string> hostLookup)
         {
             string blah = $"https://{ProxyManagerConfig.Instance.BoundlexxApiBase}/api/v2/worlds/?limit=10000&active=True&is_locked=False";
-            
+
             HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.Add("User-Agent", "Other");
             var result = await client.GetAsync(blah);
             if (!result.IsSuccessStatusCode)
             {
@@ -106,22 +107,23 @@ namespace BoundlessProxyUi.Mitm
 
             foreach (var something in serverList["results"])
             {
-                string planetId = something["name"].Value<string>();
+                //string planetId = something["name"].Value<string>();
+                int planetId = something["id"].Value<int>();
                 string planetName = something["display_name"].Value<string>();
-                var planetNum = something["id"].Value<int>();
+                //var planetNum = something["id"].Value<int>();
 
                 string addr = something["address"].Value<string>();
                 string ipAddr = hostLookup[addr];
 
                 try
                 {
-                    planetLookup.Add(planetId, new KeyValuePair<string, int>(planetName, planetNum));
+                    planetLookup.Add(planetId, new KeyValuePair<string, int>(planetName, planetId));
                 }
                 catch (System.ArgumentException)
                 {
                     System.Diagnostics.Debug.WriteLine("Duplicate planet: {1}", planetId);
                 }
-                
+
 
                 UdpProxy proxy = null;
 
@@ -193,29 +195,29 @@ namespace BoundlessProxyUi.Mitm
             Dispatcher(CommPacketDirection.ClientToServer);
         }
 
-        public static void AddOutgoingMessage(string planet, CommPacketDirection direction, WsMessage message)
+        public static void AddOutgoingMessage(int planetId, CommPacketDirection direction, WsMessage message)
         {
             var outgoingQueue = OutgoingQueueDirection[direction];
 
-            if (!outgoingQueue.TryGetValue(planet, out var collection))
+            if (!outgoingQueue.TryGetValue(planetId, out var collection))
             {
                 collection = new BlockingCollection<WsMessage>();
-                if (!outgoingQueue.TryAdd(planet, collection))
+                if (!outgoingQueue.TryAdd(planetId, collection))
                 {
-                    collection = outgoingQueue[planet];
+                    collection = outgoingQueue[planetId];
                 }
             }
 
             collection.Add(message);
         }
 
-        private static List<WsMessage> GetOutgoingMessages(string planet, CommPacketDirection direction)
+        private static List<WsMessage> GetOutgoingMessages(int planetId, CommPacketDirection direction)
         {
             var outgoingQueue = OutgoingQueueDirection[direction];
 
             List<WsMessage> result = new List<WsMessage>();
 
-            if (outgoingQueue.TryGetValue(planet, out var collection))
+            if (outgoingQueue.TryGetValue(planetId, out var collection))
             {
                 while (collection.TryTake(out var curItem))
                 {
@@ -571,7 +573,8 @@ namespace BoundlessProxyUi.Mitm
                             {
                                 frame = new WsFrame(buffer, 2, source);
                             }
-                            catch (Exception ex) {
+                            catch (Exception ex)
+                            {
                                 Log.Error(ex, "Error creating WsFrame");
                             }
 
@@ -583,7 +586,7 @@ namespace BoundlessProxyUi.Mitm
 
                                 Match m = udpPortPattern.Match(theJson);
 
-                                if (m.Success && planetStringName != null)
+                                if (m.Success && planetId != -1)
                                 {
                                     int serverPort = Convert.ToInt32(m.Groups[1].Value);
 
@@ -592,14 +595,14 @@ namespace BoundlessProxyUi.Mitm
                                         throw new Exception("Length change of udpPort");
                                     }
 
-                                    if (!planetPorts.ContainsKey(planetStringName))
+                                    if (!planetPorts.ContainsKey(planetId))
                                     {
                                         //throw new Exception($"Planet dictionary does not contain {planetStringName}");
                                     }
                                     else
                                     {
-                                        planetPorts[planetStringName].RemotePort = serverPort;
-                                        theJson = udpPortPattern.Replace(theJson, $"\"udpPort\":{planetPorts[planetStringName].LocalPort},");
+                                        planetPorts[planetId].RemotePort = serverPort;
+                                        theJson = udpPortPattern.Replace(theJson, $"\"udpPort\":{planetPorts[planetId].LocalPort},");
 
                                         byte[] sendData = Encoding.UTF8.GetBytes(theJson);
 
@@ -613,9 +616,9 @@ namespace BoundlessProxyUi.Mitm
                                 }
                             }
 
-                            if (planetStringName != null)
+                            if (planetId != -1)
                             {
-                                frame?.Messages.AddRange(GetOutgoingMessages(planetStringName, direction));
+                                frame?.Messages.AddRange(GetOutgoingMessages(planetId, direction));
                             }
 
                             try
@@ -653,7 +656,8 @@ namespace BoundlessProxyUi.Mitm
                             {
                                 websocketDataQueue[direction].Add(frame);
                             }
-                            catch (Exception ex) {
+                            catch (Exception ex)
+                            {
                                 Log.Error(ex, "Error adding frame to queue");
                             }
 
@@ -712,8 +716,8 @@ namespace BoundlessProxyUi.Mitm
                                     else
                                     {
                                         planetId = newVal;
-                                        planetStringName = planetLookup.Where(cur => cur.Value.Value == newVal).FirstOrDefault().Key;
-                                        planetDisplayName = planetLookup[planetStringName].Key;
+                                        planetStringName = planetLookup.Where(cur => cur.Value.Value == newVal).FirstOrDefault().Key.ToString();
+                                        planetDisplayName = planetLookup[planetId].Key;
                                     }
                                 }
 
@@ -789,9 +793,9 @@ namespace BoundlessProxyUi.Mitm
                     planetDisplayName = gameserverJson["worldData"]["displayName"].ToString();
                     planetStringName = gameserverJson["worldData"]["name"].ToString();
 
-                    if (!planetLookup.ContainsKey(planetStringName))
+                    if (!planetLookup.ContainsKey(planetId))
                     {
-                        planetLookup.Add(planetStringName, new KeyValuePair<string, int>(planetDisplayName, planetId));
+                        planetLookup.Add(planetId, new KeyValuePair<string, int>(planetDisplayName, planetId));
                     }
                 }
                 catch { }
@@ -871,8 +875,8 @@ namespace BoundlessProxyUi.Mitm
             }
         }
 
-        public static void ChunkToBoundless(out int boundlessEast, out int boundlessNorth, 
-                                       int chunkEast, int chunkSouth, 
+        public static void ChunkToBoundless(out int boundlessEast, out int boundlessNorth,
+                                       int chunkEast, int chunkSouth,
                                        int blockEast, int blockSouth)
         {
             if (chunkEast > 144)
