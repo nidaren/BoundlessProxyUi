@@ -8,12 +8,12 @@ namespace BoundlessProxyUi
     {
         internal static HttpClient NidHttpClient { get; } = GetNidHttpClient();
 
-        internal static string Version { get; } = GetVersion();
+        internal static string AppVersion => System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
 
         private static HttpClient GetNidHttpClient()
         {
             SocketsHttpHandler socketsHttpHandler = new() { PooledConnectionLifetime = TimeSpan.FromMinutes(5) };
-            ProductInfoHeaderValue nidBot = new("BoundlessProxyUIBot", Version);
+            ProductInfoHeaderValue nidBot = new("BoundlessProxyUIBot", AppVersion);
             ProductInfoHeaderValue userAgentComment = new($"(+https://discord.nidaren.net)");
 
             HttpClient httpClient = new(socketsHttpHandler)
@@ -26,7 +26,5 @@ namespace BoundlessProxyUi
 
             return httpClient;
         }
-
-        private static string GetVersion() => System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
     }
 }
