@@ -44,8 +44,8 @@
         <TextBlock Margin="5,8,5,1" Grid.Row="3" Grid.Column="0" TextAlignment="Right" Grid.ColumnSpan="2">Save World JSON to disk:</TextBlock>
         <CheckBox Name="chkDiskWJson" Margin="5,8,5,1" Grid.Row="3" Grid.Column="2" IsChecked="{Binding SaveWorldJson}" />
 
-        <TextBlock Margin="5,9,5,3" Grid.Row="4" Grid.Column="0" TextAlignment="Right" Grid.ColumnSpan="2">Save World Control JSON to disk:</TextBlock>
-        <CheckBox Name="chkDiskWCJson" Margin="5,9,5,3" Grid.Row="4" Grid.Column="2" IsChecked="{Binding SaveWorldControlJson}" />
+        <TextBlock Foreground="Gray" FontStyle="Italic" Margin="5,9,5,3" Grid.Row="4" Grid.Column="0" TextAlignment="Right" Grid.ColumnSpan="2">Save World Control JSON to disk:</TextBlock>
+        <CheckBox Background="LightGray" IsHitTestVisible="False" Focusable="False" Name="chkDiskWCJson" Margin="5,9,5,3" Grid.Row="4" Grid.Column="2" IsChecked="{Binding SaveWorldControlJson}" />
 
         <TextBlock Margin="5,10,5,3" Grid.Row="5" Grid.Column="0" TextAlignment="Right" Grid.ColumnSpan="2" Text="Export Folder:"/>
         <TextBox x:Name="txtExportDir" Margin="5,10,5,3" HorizontalAlignment="Left" Grid.Row="5" Grid.Column="2" Grid.ColumnSpan="2" Width="200" IsReadOnly="True" Text="{Binding ExportDirectory}" />
@@ -57,8 +57,8 @@
         <TextBlock Margin="5,9,5,0" Grid.Row="8" Grid.Column="0" TextAlignment="Right" Grid.ColumnSpan="2">Upload World JSON:</TextBlock>
         <CheckBox Name="chkUploadWJson" Margin="5,9,5,0" Grid.Row="8" Grid.Column="2" IsChecked="{Binding UploadWorldJson}" />
 
-        <TextBlock Margin="5,9,5,0" Grid.Row="9" Grid.Column="0" TextAlignment="Right" Grid.ColumnSpan="2">Upload World Control JSON:</TextBlock>
-        <CheckBox Name="chkUploadWCJson" Margin="5,9,5,0" Grid.Row="9" Grid.Column="2" IsChecked="{Binding UploadWorldControlJson}" />
+        <TextBlock Foreground="Gray" FontStyle="Italic" Margin="5,9,5,0" Grid.Row="9" Grid.Column="0" TextAlignment="Right" Grid.ColumnSpan="2">Upload World Control JSON:</TextBlock>
+        <CheckBox Background="LightGray" IsHitTestVisible="False" Focusable="False" Name="chkUploadWCJson" Margin="5,9,5,0" Grid.Row="9" Grid.Column="2" IsChecked="{Binding UploadWorldControlJson}" />
 
         <TextBlock Margin="5,10,5,3" Grid.Row="10" Grid.Column="0" TextAlignment="Right" Grid.ColumnSpan="2" Text="API Key:"/>
         <TextBox x:Name="txtApiKey" Margin="5,10,5,3" HorizontalAlignment="Left" Grid.Row="10" Grid.Column="2" Grid.ColumnSpan="2" Width="200" Text="{Binding BoundlexxApiKey}" />

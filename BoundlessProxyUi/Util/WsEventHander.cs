@@ -8,7 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
-using System.Windows;
+using System.Threading.Tasks;
 
 namespace BoundlessProxyUi.Util
 {
@@ -40,9 +40,9 @@ namespace BoundlessProxyUi.Util
                         case 0:
                             HandleWorldJson(planetId, planetDisplayName, curMessage);
                             break;
-                        case 5:
-                            HandleWorldControlJson(planetId, planetDisplayName, curMessage);
-                            break;
+                            //case 5:
+                            //HandleWorldControlJson(planetId, planetDisplayName, curMessage);
+                            //break;
                     }
                 }
             }
@@ -58,14 +58,14 @@ namespace BoundlessProxyUi.Util
             try
             {
                 File.WriteAllText(filepath, contents);
-                Application.Current.Dispatcher.Invoke(() =>
+                System.Windows.Application.Current.Dispatcher.Invoke(() =>
                 {
                     ProxyManagerWindow.Instance.SetStatusText($"Successfully wrote {filename}");
                 });
             }
             catch (Exception ex)
             {
-                Application.Current.Dispatcher.Invoke(() =>
+                System.Windows.Application.Current.Dispatcher.Invoke(() =>
                 {
                     ProxyManagerWindow.Instance.ShowError($"Failed to write {filepath}:\r\n{ex.Message}", "Error writing JSON", ex);
                 });
@@ -87,7 +87,7 @@ namespace BoundlessProxyUi.Util
                 var message = $"Failed to upload {type} JSON for {name}: {ex.InnerException.Message}";
                 if (!slientFail)
                 {
-                    Application.Current.Dispatcher.Invoke(() =>
+                    System.Windows.Application.Current.Dispatcher.Invoke(() =>
                     {
                         ProxyManagerWindow.Instance.ShowError(message, "Error uploading JSON", ex);
                     });
@@ -99,12 +99,25 @@ namespace BoundlessProxyUi.Util
                 return;
             }
 
+            catch (TaskCanceledException ex) when (ex.InnerException is TimeoutException)
+            {
+                var messageTmout = $"Failed to upload {type} JSON for {name}: request timeout.";
+                Log.Error(ex, messageTmout);
+                return;
+            }
+            catch (Exception ex)
+            {
+                var msg = $"Failed to upload {type} JSON for {name}: {ex.Message}";
+                Log.Error(ex, msg);
+                return;
+            }
+
             if (response != null && !response.IsSuccessStatusCode)
             {
                 // ignore rate limiting
                 if (response.StatusCode != (System.Net.HttpStatusCode)429)
                 {
-                    Application.Current.Dispatcher.Invoke(() =>
+                    System.Windows.Application.Current.Dispatcher.Invoke(() =>
                     {
                         ProxyManagerWindow.Instance.ShowError($"Failed to upload {type} JSON for {name}. Response code: {response.StatusCode}", "Error uploading JSON");
                     });
@@ -112,7 +125,7 @@ namespace BoundlessProxyUi.Util
                 return;
             }
 
-            Application.Current.Dispatcher.Invoke(() =>
+            System.Windows.Application.Current.Dispatcher.Invoke(() =>
             {
                 ProxyManagerWindow.Instance.SetStatusText($"Successfully uploaded {type} JSON for {name}");
             });
@@ -188,7 +201,7 @@ namespace BoundlessProxyUi.Util
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Error decoding World Control message");
+                Log.Error(ex, $"Error decoding World Control: {planetDisplayName} message");
                 return;
             }
 
