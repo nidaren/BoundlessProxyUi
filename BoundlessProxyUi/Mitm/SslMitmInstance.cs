@@ -765,7 +765,7 @@ namespace BoundlessProxyUi.Mitm
                         }
                     }
 
-                    Log.Information("Killing connection");
+                    //Log.Information("Killing connection");
                     Kill(direction == CommPacketDirection.ClientToServer);
                 }
                 catch (Exception ex)
