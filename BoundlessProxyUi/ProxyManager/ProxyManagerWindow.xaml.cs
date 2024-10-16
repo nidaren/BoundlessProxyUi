@@ -1,4 +1,5 @@
-﻿using BoundlessProxyUi.ProxyManager.Components;
+﻿using BoundlessProxyUi.Mitm;
+using BoundlessProxyUi.ProxyManager.Components;
 using BoundlessProxyUi.ProxyUi;
 using BoundlessProxyUi.SettingsUi;
 using BoundlessProxyUi.Util;
@@ -193,9 +194,12 @@ namespace BoundlessProxyUi.ProxyManager
 
             e.Cancel = true;
             Data.ShutdownStarted = true;
-
+            SslMitmInstance.ShutdownInitiated = true;
+            Log.Information("Shutdown requested.");
             ProxyUiWindow.CloseInstance();
             SettingsWindow.CloseInstance();
+
+            Mitm.SslMitmInstance.ForwardStreamThreads_CTS.Cancel();
 
             ComponentEngine.Instance.Stop().ContinueWith(bla =>
             {
@@ -207,6 +211,7 @@ namespace BoundlessProxyUi.ProxyManager
                     }
 
                     shutdownCompleted = true;
+                    Log.Information("Shutdown completed.");
                     Close();
 
                     Task.Run(async () =>
