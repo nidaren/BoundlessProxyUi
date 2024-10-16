@@ -10,6 +10,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -35,10 +36,13 @@ namespace BoundlessProxyUi.Mitm
 
         public static object playerPlanetLock = new object();
         public static string playerPlanet = string.Empty;
+        internal static bool ShutdownInitiated { get; set; } = false;
 
         private readonly Stream m_client;
         private readonly Stream m_server;
         private readonly ConnectionInstance m_connectionInstance;
+        internal static readonly CancellationTokenSource ForwardStreamThreads_CTS = new();
+        private static readonly CancellationToken forwardStreamToken = ForwardStreamThreads_CTS.Token;
 
         private readonly Dictionary<CommPacketDirection, BlockingCollection<WsFrame>> websocketDataQueue = new Dictionary<CommPacketDirection, BlockingCollection<WsFrame>>
         {
@@ -187,8 +191,8 @@ namespace BoundlessProxyUi.Mitm
 
             OnFrameIn += WsEventHander.Instance.OnFrameIn;
 
-            ForwardStreamNew(client, server, new byte[chunkSize], CommPacketDirection.ClientToServer);
-            ForwardStreamNew(server, client, new byte[chunkSize], CommPacketDirection.ServerToClient);
+            ForwardStreamNew(client, server, new byte[chunkSize], CommPacketDirection.ClientToServer, forwardStreamToken);
+            ForwardStreamNew(server, client, new byte[chunkSize], CommPacketDirection.ServerToClient, forwardStreamToken);
 
             Dispatcher(CommPacketDirection.ServerToClient);
             Dispatcher(CommPacketDirection.ClientToServer);
@@ -303,6 +307,10 @@ namespace BoundlessProxyUi.Mitm
 
                         try
                         {
+                            //while (myQueue.TryTake(out curFrame, TimeSpan.FromMilliseconds(100)))
+                            //{
+                            //    Log.Information("Took frame from collection.");
+                            //}
                             curFrame = myQueue.Take();
                         }
                         catch
@@ -333,7 +341,7 @@ namespace BoundlessProxyUi.Mitm
             }).Start();
         }
 
-        private void ForwardStreamNew(Stream source, Stream destination, byte[] buffer, CommPacketDirection direction)
+        private void ForwardStreamNew(Stream source, Stream destination, byte[] buffer, CommPacketDirection direction, CancellationToken token)
         {
             var rawVerbs = new string[] { "GET", "HEAD", "POST", "PUT", "DELETE", "TRACE", "CONNECT" };
             byte[][] verbs = rawVerbs.Select(cur => Encoding.UTF8.GetBytes(cur).Take(2).ToArray()).ToArray();
@@ -343,6 +351,7 @@ namespace BoundlessProxyUi.Mitm
             Regex statusLinePattern = new Regex($"^HTTP/1.1 ([0-9]+) (.*)$");
             Regex websocketPlanet = new Regex("GET /([0-9]+)/websocket/game HTTP/1.1");
             Regex udpPortPattern = new Regex("\"udpPort\"\\:([0-9]+)\\,");
+
 
             try
             {
@@ -364,6 +373,8 @@ namespace BoundlessProxyUi.Mitm
 
                     while (true)
                     {
+                        token.ThrowIfCancellationRequested();
+
                         try
                         {
                             destination.Flush();
@@ -404,6 +415,14 @@ namespace BoundlessProxyUi.Mitm
                                 try
                                 {
                                     bytesRead = source.Read(buffer, offset, count - offset);
+                                }
+                                catch (IOException io) when (io.InnerException is SocketException)
+                                {
+                                    if (!ShutdownInitiated)
+                                    {
+                                        Log.Error("Stream Reader: An established connection was aborted.");
+                                    }
+
                                 }
                                 catch (Exception ex)
                                 {
@@ -622,7 +641,11 @@ namespace BoundlessProxyUi.Mitm
 
                             try
                             {
-                                frame?.Send(destination);
+                                if (destination.CanWrite)
+                                {
+                                    frame?.Send(destination);
+                                }
+
                             }
                             catch (Exception ex)
                             {
@@ -653,6 +676,11 @@ namespace BoundlessProxyUi.Mitm
 
                             try
                             {
+                                if (websocketDataQueue[direction].IsCompleted)
+                                {
+                                    websocketDataQueue[direction] = new();
+                                }
+
                                 websocketDataQueue[direction].Add(frame);
                             }
                             catch (Exception ex)
@@ -765,7 +793,11 @@ namespace BoundlessProxyUi.Mitm
                         }
                     }
 
-                    Log.Information("Killing connection");
+                    //Log.Information("Killing connection");
+                    Kill(direction == CommPacketDirection.ClientToServer);
+                }
+                catch (OperationCanceledException)
+                {
                     Kill(direction == CommPacketDirection.ClientToServer);
                 }
                 catch (Exception ex)
