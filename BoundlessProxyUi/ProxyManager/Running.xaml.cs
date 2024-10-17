@@ -1,8 +1,7 @@
-﻿using BoundlessProxyUi.SettingsUi;
-using BoundlessProxyUi.ProxyUi;
+﻿using BoundlessProxyUi.ProxyUi;
+using BoundlessProxyUi.SettingsUi;
 using System.Windows;
 using System.Windows.Controls;
-using Serilog;
 
 namespace BoundlessProxyUi.ProxyManager
 {

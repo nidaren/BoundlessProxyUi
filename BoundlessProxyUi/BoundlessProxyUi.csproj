@@ -2,10 +2,10 @@
   <PropertyGroup>
     <TargetFramework>net8.0-windows</TargetFramework>
     <OutputType>WinExe</OutputType>
-	<Version>1.5.4</Version>
-	<FileVersion>1.5.4</FileVersion>
-    <AssemblyVersion>1.5.4</AssemblyVersion>
-    <ApplicationVersion>1.5.4</ApplicationVersion>
+	<Version>1.5.5</Version>
+	<FileVersion>1.5.5</FileVersion>
+    <AssemblyVersion>1.5.5</AssemblyVersion>
+    <ApplicationVersion>1.5.5</ApplicationVersion>
 	<IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     <UseWindowsForms>true</UseWindowsForms>
     <UseWPF>true</UseWPF>

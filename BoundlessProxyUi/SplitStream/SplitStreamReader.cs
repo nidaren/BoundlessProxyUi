@@ -49,7 +49,7 @@ namespace BoundlessProxyUi.SplitStream
 
             return _chunk.Length - _position;
         }
-        
+
         #region Stream overrides
 
         public override int Read(byte[] buffer, int offset, int count)
