@@ -4,25 +4,26 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Serilog;
 using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+#pragma warning disable CA1822
 
 namespace BoundlessProxyUi.Util
 {
-    public class WsEventHander
+    public partial class WsEventHander
     {
         private static WsEventHander instance;
+        private static readonly TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
         public static WsEventHander Instance
         {
             get
             {
-                if (instance == null)
-                {
-                    instance = new WsEventHander();
-                }
+                instance ??= new WsEventHander();
                 return instance;
             }
         }
@@ -41,14 +42,14 @@ namespace BoundlessProxyUi.Util
                             HandleWorldJson(planetId, planetDisplayName, curMessage);
                             break;
                             //case 5:
-                            //HandleWorldControlJson(planetId, planetDisplayName, curMessage);
-                            //break;
+                            //    HandleWorldControlJson(planetId, planetDisplayName, curMessage);
+                            //    break;
                     }
                 }
             }
         }
 
-        private void WriteExportFile(string filename, string contents)
+        private static void WriteExportFile(string filename, string contents)
         {
             var invalidFileNameChars = Path.GetInvalidFileNameChars();
             filename = new string(filename.Where(cur => !invalidFileNameChars.Contains(cur)).ToArray());
@@ -72,7 +73,7 @@ namespace BoundlessProxyUi.Util
             }
         }
 
-        private async void UploadJson(string content, string path, string name, string type, bool slientFail = false)
+        private static async void UploadJson(string content, string path, string name, string type, bool slientFail = false)
         {
             Network.NidHttpClient.DefaultRequestHeaders.Authorization = new("Token", ProxyManagerConfig.Instance.BoundlexxApiKey);
 
@@ -114,26 +115,35 @@ namespace BoundlessProxyUi.Util
 
             if (response != null && !response.IsSuccessStatusCode)
             {
-                // ignore rate limiting
-                if (response.StatusCode != (System.Net.HttpStatusCode)429)
+                if (response.StatusCode is (System.Net.HttpStatusCode)429)
                 {
                     System.Windows.Application.Current.Dispatcher.Invoke(() =>
                     {
-                        ProxyManagerWindow.Instance.ShowError($"Failed to upload {type} JSON for {name}. Response code: {response.StatusCode}", "Error uploading JSON");
+                        ProxyManagerWindow.Instance.SetStatusText($"Rate limited! Did not upload {type} JSON for {name}. You exceeded number of requests to API.", true);
                     });
+                    return;
                 }
+
+                System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                {
+                    ProxyManagerWindow.Instance.ShowError($"Failed to upload {type} JSON for {name}", "Error uploading JSON");
+                });
                 return;
             }
 
             System.Windows.Application.Current.Dispatcher.Invoke(() =>
             {
-                ProxyManagerWindow.Instance.SetStatusText($"Successfully uploaded {type} JSON for {name}");
+                ProxyManagerWindow.Instance.SetStatusText($"Successfully uploaded {type} JSON for {name}", false);
+                Log.Information($"Successfully uploaded {type} JSON for {name}. API Response: {response.ReasonPhrase}, with code: {(int)response.StatusCode}");
             });
         }
 
         private void HandleWorldJson(int planetId, string planetDisplayName, WsMessage message)
         {
             JObject payload;
+
+            string tagFree = FilenameFilterRegex().Replace(planetDisplayName, "");
+            tagFree = textInfo.ToTitleCase(tagFree.ToLower());
 
             try
             {
@@ -150,17 +160,17 @@ namespace BoundlessProxyUi.Util
 
             if (ProxyManagerConfig.Instance.SaveWorldJson)
             {
-                var filename = $"{planetDisplayName}.json";
+                var filename = $"{tagFree}.json";
                 WriteExportFile(filename, jsonString);
             }
 
             if (ProxyManagerConfig.Instance.UploadWorldJson)
             {
-                UploadJson(jsonString, "/ingest-ws-data/", planetDisplayName, "World");
+                UploadJson(jsonString, "/ingest-ws-data/", tagFree, "World");
             }
         }
 
-        private static readonly byte START_BYTE = 64;
+        private readonly byte START_BYTE = 64;
         private void HandleWorldControlJson(int planetId, string planetDisplayName, WsMessage message)
         {
             if (message.Buffer.Length < 2000)
@@ -234,10 +244,10 @@ namespace BoundlessProxyUi.Util
 
         private Tuple<string, bool> ParseWorldControlJson(int planetId, byte[] buffer, int offset)
         {
-            StringWriter jsonString = new StringWriter();
+            StringWriter jsonString = new();
             var isSimple = false;
 
-            using (JsonWriter jsonWriter = new JsonTextWriter(jsonString))
+            using (JsonTextWriter jsonWriter = new(jsonString))
             {
                 jsonWriter.Formatting = Formatting.Indented;
                 jsonWriter.WriteStartObject();
@@ -358,5 +368,8 @@ namespace BoundlessProxyUi.Util
             }
             return buffer.Skip(offset).Take(numBytes).Reverse().ToArray();
         }
+
+        [GeneratedRegex(@"\s*\:.*?\:\s*")]
+        private static partial Regex FilenameFilterRegex();
     }
 }

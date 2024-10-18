@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Reflection;
-using System.Windows;
-using System.Windows.Media.Converters;
 
 namespace BoundlessProxyUi.Util
 {
@@ -24,8 +22,10 @@ namespace BoundlessProxyUi.Util
 
         public static string BaseDirectory
         {
-            get {
-                if (IsPortable) {
+            get
+            {
+                if (IsPortable)
+                {
                     return Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
                 }
 
@@ -42,7 +42,8 @@ namespace BoundlessProxyUi.Util
         private static readonly Dictionary<string, string> s_configCache = new Dictionary<string, string>();
 
         private static Configuration configuration;
-        private static Configuration Configuration {
+        private static Configuration Configuration
+        {
             get
             {
                 if (configuration == null)
@@ -51,7 +52,8 @@ namespace BoundlessProxyUi.Util
                     {
                         configuration = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
                     }
-                    else {
+                    else
+                    {
                         ExeConfigurationFileMap fileMap = new ExeConfigurationFileMap();
                         fileMap.ExeConfigFilename = Path.Combine(BaseDirectory, "proxyui.config");
                         configuration = ConfigurationManager.OpenMappedExeConfiguration(fileMap, ConfigurationUserLevel.None);
@@ -106,7 +108,7 @@ namespace BoundlessProxyUi.Util
             }
 
             // Add setting if not preset
-            
+
             if (Configuration.AppSettings.Settings[key] == null)
             {
                 Configuration.AppSettings.Settings.Add(new KeyValueConfigurationElement(key, null));

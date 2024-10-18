@@ -1,17 +1,13 @@
 ﻿using BoundlessProxyUi.ProxyManager;
-using BoundlessProxyUi.ProxyManager.Components;
 using BoundlessProxyUi.Util;
 using BoundlessProxyUi.WsData;
 using Serilog;
 using System;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
@@ -24,7 +20,9 @@ namespace BoundlessProxyUi.ProxyUi
     public partial class ProxyUiWindow : Window
     {
         private static ProxyUiWindow instance;
-        public static ProxyUiWindow Instance { get
+        public static ProxyUiWindow Instance
+        {
+            get
             {
                 if (instance == null)
                 {
@@ -41,7 +39,7 @@ namespace BoundlessProxyUi.ProxyUi
                 instance.Close();
             }
         }
-         
+
         public static void AddFrame(WsFrame frame, CommPacketDirection direction, ConnectionInstance connectionInstance)
         {
             if (instance == null || !instance.Data.CaptureEnabled)
@@ -89,7 +87,8 @@ namespace BoundlessProxyUi.ProxyUi
 
                 instance.Data.SendBytesToUi(connectionInstance, parentPacket);
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 Log.Error(ex, "Error in AddFrame");
             }
         }

@@ -1,5 +1,4 @@
-﻿using BoundlessProxyUi.Mitm;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Windows.Controls;
 
 namespace BoundlessProxyUi.ProxyUi

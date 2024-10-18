@@ -50,7 +50,7 @@ namespace BoundlessProxyUi.ProxyUi
         {
             get
             {
-                return Data.Length + ChildPackets.Select(cur=> cur.TotalLength).Sum();
+                return Data.Length + ChildPackets.Select(cur => cur.TotalLength).Sum();
             }
         }
 

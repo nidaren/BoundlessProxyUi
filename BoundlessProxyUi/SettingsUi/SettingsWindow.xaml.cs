@@ -1,13 +1,4 @@
-﻿using BoundlessProxyUi.ProxyManager;
-using BoundlessProxyUi.WsData;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
-using System.ComponentModel;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Text;
+﻿using System;
 using System.Windows;
 
 namespace BoundlessProxyUi.SettingsUi
@@ -18,7 +9,9 @@ namespace BoundlessProxyUi.SettingsUi
     public partial class SettingsWindow : Window
     {
         private static SettingsWindow instance;
-        public static SettingsWindow Instance { get
+        public static SettingsWindow Instance
+        {
+            get
             {
                 if (instance == null)
                 {

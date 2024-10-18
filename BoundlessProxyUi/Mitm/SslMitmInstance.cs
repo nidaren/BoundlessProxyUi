@@ -19,23 +19,23 @@ using System.Windows;
 
 namespace BoundlessProxyUi.Mitm
 {
-    public class SslMitmInstance
+    public partial class SslMitmInstance
     {
-        private static readonly Dictionary<int, KeyValuePair<string, int>> planetLookup = new Dictionary<int, KeyValuePair<string, int>>();
+        private static readonly Dictionary<int, KeyValuePair<string, int>> planetLookup = [];
 
         static SslMitmInstance()
         {
             return;
         }
 
-        public static bool Terminate = false;
+        internal static bool Terminate = false;
 
-        public static string PlayerName = null;
+        internal static string PlayerName = null;
 
-        public static Dictionary<int, UdpProxy> planetPorts = new Dictionary<int, UdpProxy>();
+        internal static Dictionary<int, UdpProxy> planetPorts = [];
 
-        public static object playerPlanetLock = new object();
-        public static string playerPlanet = string.Empty;
+        internal static object playerPlanetLock = new();
+        internal static string playerPlanet = string.Empty;
         internal static bool ShutdownInitiated { get; set; } = false;
 
         private readonly Stream m_client;
@@ -44,13 +44,13 @@ namespace BoundlessProxyUi.Mitm
         internal static readonly CancellationTokenSource ForwardStreamThreads_CTS = new();
         private static readonly CancellationToken forwardStreamToken = ForwardStreamThreads_CTS.Token;
 
-        private readonly Dictionary<CommPacketDirection, BlockingCollection<WsFrame>> websocketDataQueue = new Dictionary<CommPacketDirection, BlockingCollection<WsFrame>>
+        private readonly Dictionary<CommPacketDirection, BlockingCollection<WsFrame>> websocketDataQueue = new()
         {
             { CommPacketDirection.ClientToServer, new BlockingCollection<WsFrame>() },
             { CommPacketDirection.ServerToClient, new BlockingCollection<WsFrame>() },
         };
 
-        private static readonly Dictionary<CommPacketDirection, ConcurrentDictionary<int, BlockingCollection<WsMessage>>> OutgoingQueueDirection = new Dictionary<CommPacketDirection, ConcurrentDictionary<int, BlockingCollection<WsMessage>>>
+        private static readonly Dictionary<CommPacketDirection, ConcurrentDictionary<int, BlockingCollection<WsMessage>>> OutgoingQueueDirection = new()
         {
             { CommPacketDirection.ClientToServer, new ConcurrentDictionary<int, BlockingCollection<WsMessage>>() },
             { CommPacketDirection.ServerToClient, new ConcurrentDictionary<int, BlockingCollection<WsMessage>>() },
@@ -124,7 +124,7 @@ namespace BoundlessProxyUi.Mitm
                 }
                 catch (System.ArgumentException)
                 {
-                    System.Diagnostics.Debug.WriteLine("Duplicate planet: {1}", planetId);
+                    System.Diagnostics.Debug.WriteLine("Duplicate planet: {0}", planetId);
                 }
 
 
@@ -204,7 +204,7 @@ namespace BoundlessProxyUi.Mitm
 
             if (!outgoingQueue.TryGetValue(planetId, out var collection))
             {
-                collection = new BlockingCollection<WsMessage>();
+                collection = [];
                 if (!outgoingQueue.TryAdd(planetId, collection))
                 {
                     collection = outgoingQueue[planetId];
@@ -218,7 +218,7 @@ namespace BoundlessProxyUi.Mitm
         {
             var outgoingQueue = OutgoingQueueDirection[direction];
 
-            List<WsMessage> result = new List<WsMessage>();
+            List<WsMessage> result = [];
 
             if (outgoingQueue.TryGetValue(planetId, out var collection))
             {
@@ -322,7 +322,7 @@ namespace BoundlessProxyUi.Mitm
 
                         if (curHandler != null)
                         {
-                            foreach (OnFrameHandler curInvoke in curHandler.GetInvocationList())
+                            foreach (OnFrameHandler curInvoke in curHandler.GetInvocationList().Cast<OnFrameHandler>())
                             {
                                 try
                                 {
@@ -345,12 +345,12 @@ namespace BoundlessProxyUi.Mitm
         {
             var rawVerbs = new string[] { "GET", "HEAD", "POST", "PUT", "DELETE", "TRACE", "CONNECT" };
             byte[][] verbs = rawVerbs.Select(cur => Encoding.UTF8.GetBytes(cur).Take(2).ToArray()).ToArray();
-            Regex requestLinePattern = new Regex($"^({string.Join("|", rawVerbs)}) [^ ]+ HTTP/1.1$");
-            Regex contentLengthPattern = new Regex($"^Content-Length: ([0-9]+)$");
-            Regex chunkedPattern = new Regex($"^Transfer-Encoding: chunked$");
-            Regex statusLinePattern = new Regex($"^HTTP/1.1 ([0-9]+) (.*)$");
-            Regex websocketPlanet = new Regex("GET /([0-9]+)/websocket/game HTTP/1.1");
-            Regex udpPortPattern = new Regex("\"udpPort\"\\:([0-9]+)\\,");
+            Regex requestLinePattern = new($"^({string.Join("|", rawVerbs)}) [^ ]+ HTTP/1.1$");
+            Regex contentLengthPattern = ContentLengthRegex();
+            Regex chunkedPattern = TransferEncodingRegex();
+            Regex statusLinePattern = HttpversionRegex();
+            Regex websocketPlanet = GetRegex();
+            Regex udpPortPattern = UdpPortRegex();
 
 
             try
@@ -443,7 +443,7 @@ namespace BoundlessProxyUi.Mitm
 
                         string ReadLine()
                         {
-                            List<byte> result = new List<byte>();
+                            List<byte> result = [];
 
                             byte? prevByte = null;
 
@@ -470,7 +470,7 @@ namespace BoundlessProxyUi.Mitm
 
                         void DoHttpHeadersContentAndForward()
                         {
-                            List<string> headers = new List<string>();
+                            List<string> headers = [];
 
                             ulong contentLength = 0;
                             bool chunked = false;
@@ -613,14 +613,14 @@ namespace BoundlessProxyUi.Mitm
                                         throw new Exception("Length change of udpPort");
                                     }
 
-                                    if (!planetPorts.ContainsKey(planetId))
+                                    if (!planetPorts.TryGetValue(planetId, out UdpProxy value))
                                     {
                                         //throw new Exception($"Planet dictionary does not contain {planetStringName}");
                                     }
                                     else
                                     {
-                                        planetPorts[planetId].RemotePort = serverPort;
-                                        theJson = udpPortPattern.Replace(theJson, $"\"udpPort\":{planetPorts[planetId].LocalPort},");
+                                        value.RemotePort = serverPort;
+                                        theJson = udpPortPattern.Replace(theJson, $"\"udpPort\":{value.LocalPort},");
 
                                         byte[] sendData = Encoding.UTF8.GetBytes(theJson);
 
@@ -663,22 +663,19 @@ namespace BoundlessProxyUi.Mitm
                             //    throw new Exception("frame data mismatch.");
                             //}
 
-                            if (frame == null)
+                            frame ??= new WsFrame()
                             {
-                                frame = new WsFrame()
-                                {
-                                    Messages = new List<WsMessage>
-                                    {
-                                        new WsMessage(24, null, Encoding.UTF8.GetBytes("Frame decoding failure!")),
-                                    },
-                                };
-                            }
+                                Messages =
+                                    [
+                                        new(24, null, Encoding.UTF8.GetBytes("Frame decoding failure!")),
+                                    ],
+                            };
 
                             try
                             {
                                 if (websocketDataQueue[direction].IsCompleted)
                                 {
-                                    websocketDataQueue[direction] = new();
+                                    websocketDataQueue[direction] = [];
                                 }
 
                                 websocketDataQueue[direction].Add(frame);
@@ -818,7 +815,7 @@ namespace BoundlessProxyUi.Mitm
             {
                 try
                 {
-                    var gameserverJson = JObject.Parse(entireMessage.Substring(entireMessage.IndexOf("\r\n\r\n") + 4));
+                    var gameserverJson = JObject.Parse(entireMessage[(entireMessage.IndexOf("\r\n\r\n") + 4)..]);
 
                     planetId = gameserverJson["worldData"]["id"].Value<int>();
                     planetDisplayName = gameserverJson["worldData"]["displayName"].ToString();
@@ -834,12 +831,12 @@ namespace BoundlessProxyUi.Mitm
 
             if (ReplaceIpaddr && entireMessage.Contains("ipAddr"))
             {
-                Regex ipSubPattern = new Regex("\\,\"ipAddr\":\"(?!127\\.0\\.0\\.1)[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\"\\,");
+                Regex ipSubPattern = IpAddrRegex();
                 Match ipSubMatch = ipSubPattern.Match(entireMessage);
 
                 if (ipSubMatch.Success)
                 {
-                    Regex reg = new Regex("Content-Length\\: ([0-9]+)", RegexOptions.IgnoreCase);
+                    Regex reg = ContentLenRegex();
                     Match m = reg.Match(entireMessage);
 
                     int length = Convert.ToInt32(m.Groups[1].Value);
@@ -923,5 +920,26 @@ namespace BoundlessProxyUi.Mitm
             boundlessEast = chunkEast * 16 + blockEast;
             boundlessNorth = -(chunkSouth * 16 + blockSouth);
         }
+
+        [GeneratedRegex("^Content-Length: ([0-9]+)$")]
+        private static partial Regex ContentLengthRegex();
+
+        [GeneratedRegex("^Transfer-Encoding: chunked$")]
+        private static partial Regex TransferEncodingRegex();
+
+        [GeneratedRegex("^HTTP/1.1 ([0-9]+) (.*)$")]
+        private static partial Regex HttpversionRegex();
+
+        [GeneratedRegex("GET /([0-9]+)/websocket/game HTTP/1.1")]
+        private static partial Regex GetRegex();
+
+        [GeneratedRegex("\"udpPort\"\\:([0-9]+)\\,")]
+        private static partial Regex UdpPortRegex();
+
+        [GeneratedRegex("\\,\"ipAddr\":\"(?!127\\.0\\.0\\.1)[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\"\\,")]
+        private static partial Regex IpAddrRegex();
+
+        [GeneratedRegex("Content-Length\\: ([0-9]+)", RegexOptions.IgnoreCase, "en-GB")]
+        private static partial Regex ContentLenRegex();
     }
 }
