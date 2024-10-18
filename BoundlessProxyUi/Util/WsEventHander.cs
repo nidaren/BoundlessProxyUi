@@ -152,7 +152,7 @@ namespace BoundlessProxyUi.Util
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Error decoding World JSON message");
+                Log.Error($"Error decoding World JSON message: {ex.Message}");
                 return;
             }
 
