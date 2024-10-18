@@ -4,18 +4,21 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Serilog;
 using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 #pragma warning disable CA1822
 
 namespace BoundlessProxyUi.Util
 {
-    public class WsEventHander
+    public partial class WsEventHander
     {
         private static WsEventHander instance;
+        private static readonly TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
         public static WsEventHander Instance
         {
             get
@@ -139,6 +142,9 @@ namespace BoundlessProxyUi.Util
         {
             JObject payload;
 
+            string tagFree = FilenameFilterRegex().Replace(planetDisplayName, "");
+            tagFree = textInfo.ToTitleCase(tagFree.ToLower());
+
             try
             {
                 payload = JObject.Parse(Encoding.UTF8.GetString(message.Buffer));
@@ -154,13 +160,13 @@ namespace BoundlessProxyUi.Util
 
             if (ProxyManagerConfig.Instance.SaveWorldJson)
             {
-                var filename = $"{planetDisplayName}.json";
+                var filename = $"{tagFree}.json";
                 WriteExportFile(filename, jsonString);
             }
 
             if (ProxyManagerConfig.Instance.UploadWorldJson)
             {
-                UploadJson(jsonString, "/ingest-ws-data/", planetDisplayName, "World");
+                UploadJson(jsonString, "/ingest-ws-data/", tagFree, "World");
             }
         }
 
@@ -362,5 +368,8 @@ namespace BoundlessProxyUi.Util
             }
             return buffer.Skip(offset).Take(numBytes).Reverse().ToArray();
         }
+
+        [GeneratedRegex(@"\s*\:.*?\:\s*")]
+        private static partial Regex FilenameFilterRegex();
     }
 }
